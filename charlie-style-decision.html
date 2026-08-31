@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Charlie — Style Decision · Clay Lane Locked</title>
+<style>
+  :root{
+    --bg:#0c0d10; --bg2:#131519; --panel:#16181d; --panel2:#1c1f26;
+    --line:#282c34; --line2:#333844;
+    --ink:#f4f5f7; --sub:#aeb4c0; --mut:#7d8595;
+    --accent:#e8a33d; --accent2:#f2c078;
+    --good:#57c98a; --warn:#e8a33d; --danger:#e5736b;
+    --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-size:16px}
+  a{color:var(--accent2);text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  header.hero{position:relative;overflow:hidden;
+    background:
+      radial-gradient(1000px 500px at 80% -10%, rgba(232,163,61,.18), transparent 60%),
+      radial-gradient(700px 400px at 0% 0%, rgba(110,168,255,.08), transparent 55%),
+      linear-gradient(180deg,#101216, #0c0d10);
+    border-bottom:1px solid var(--line)}
+  .hero-inner{padding:56px 0 44px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);
+    border:1px solid var(--line2);background:rgba(232,163,61,.06);
+    padding:6px 12px;border-radius:100px;margin-bottom:20px}
+  .eyebrow .d{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1.title{font-size:clamp(34px,5.2vw,54px);line-height:1.05;letter-spacing:-.02em;font-weight:800}
+  h1.title span{color:var(--accent)}
+  .tag{margin-top:16px;font-size:18px;color:var(--sub);max-width:780px}
+  .hero-meta{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--sub);background:var(--panel);
+    border:1px solid var(--line);border-radius:100px;padding:7px 13px}
+  .chip b{color:var(--ink)}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(12,13,16,.86);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .toc-inner{display:flex;gap:6px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+  .toc-inner::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap;font-size:13px;color:var(--mut);padding:7px 13px;border-radius:100px;
+    border:1px solid transparent;transition:.15s}
+  nav.toc a:hover{color:var(--ink);background:var(--panel);border-color:var(--line)}
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(24px,3.2vw,32px);letter-spacing:-.01em;font-weight:750;margin-bottom:8px}
+  h2 + .lede{color:var(--sub);font-size:16.5px;max-width:800px;margin-bottom:24px}
+  h3{font-size:17px;margin:24px 0 10px;font-weight:650}
+  p{color:var(--sub)}
+  p + p{margin-top:12px}
+  strong{color:var(--ink);font-weight:650}
+  em{color:var(--accent2);font-style:normal}
+  .callout{border:1px solid var(--line2);border-left:3px solid var(--accent);
+    background:linear-gradient(90deg,rgba(232,163,61,.07),rgba(232,163,61,0));
+    border-radius:12px;padding:16px 18px;margin:20px 0}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout.good{border-left-color:var(--good);background:linear-gradient(90deg,rgba(87,201,138,.08),transparent)}
+  .callout.risk{border-left-color:var(--danger);background:linear-gradient(90deg,rgba(229,115,107,.08),transparent)}
+  .callout .ct{font-weight:700;color:var(--ink);margin-bottom:6px;font-size:14px}
+  .callout p{color:#d5d9e0;font-size:14.5px}
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14.5px}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+  td{color:var(--sub)}
+  td strong{color:var(--ink)}
+  td.n{font-family:var(--mono);text-align:center}
+  td.win{color:var(--good);font-weight:700}
+  td.kill{color:var(--danger)}
+  .table-scroll{overflow-x:auto}
+  .table-scroll table{min-width:640px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:14px}
+  .shot{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:.16s}
+  .shot:hover{transform:translateY(-3px);border-color:var(--line2)}
+  .shot a.img{display:block;background:#0a0b0d}
+  .shot img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover}
+  .shot.p916 img{aspect-ratio:9/16}
+  .shot .cap{padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--mut)}
+  .shot .cap b{color:var(--sub);font-weight:600}
+  .wide-img{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px;background:#0a0b0d}
+  .wide-img img{width:100%;display:block}
+  ul.list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  ul.list li{position:relative;padding-left:24px;color:var(--sub)}
+  ul.list li::before{content:"";position:absolute;left:4px;top:11px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:760px){.g2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--mut);margin-bottom:10px}
+  .card p{color:#d5d9e0;font-size:14.5px}
+  pre{background:#0a0b0d;border:1px solid var(--line);border-radius:12px;padding:20px;overflow:auto;
+    font-family:var(--mono);font-size:12.5px;color:#cdd3dd;line-height:1.7;margin-top:6px}
+  pre .k{color:var(--accent2)}
+  footer{padding:36px 0 64px;color:var(--mut);font-family:var(--mono);font-size:12px}
+</style>
+</head>
+<body>
+<nav style="background:#0a0b0d;border-bottom:1px solid #282c34;font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:12px"><div style="max-width:1120px;margin:0 auto;padding:11px 24px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center"><span style="color:#f2c078;letter-spacing:.12em">CHARLIE · THE OS DOG</span><span style="color:#333844">|</span><a style="color:#7d8595;text-decoration:none" href="index.html">Overview</a><a style="color:#7d8595;text-decoration:none" href="charlie-project.html">One-Pager</a><a style="color:#7d8595;text-decoration:none" href="charlie-virality-analysis.html">Viral Analysis</a><a style="color:#e8a33d;font-weight:700;text-decoration:none" href="charlie-style-decision.html">Style Decision</a><a style="color:#7d8595;text-decoration:none" href="charlie-preproduction.html">Pre-Production</a></div></nav>
+
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <span class="eyebrow"><span class="d"></span>GrowthX · Charlie Franchise · Style Decision</span>
+    <h1 class="title">The clay lane is locked<span>.</span></h1>
+    <p class="tag">Charlie is now a fully fictional English bulldog — no real-dog reference behind him — so the art style has to carry identity, ownability, and the entire anti-slop defense on its own. We tested the finalists head-to-head and put the evidence in front of a five-lens judge panel. The verdict was a sweep: <strong>claymation for everything, daily.</strong> This page is the decision record.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>Verdict:</b> single clay lane (photoreal retired)</span>
+      <span class="chip"><b>Method:</b> matched renders + 5-lens panel</span>
+      <span class="chip"><b>Score:</b> clay 9·9·9·9·9 — unanimous</span>
+      <span class="chip"><b>Date:</b> July 7, 2026</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap toc-inner">
+    <a href="#verdict">Verdict</a>
+    <a href="#method">Method</a>
+    <a href="#matrix">Score Matrix</a>
+    <a href="#evidence">Evidence</a>
+    <a href="#disposition">All 10 Styles</a>
+    <a href="#dissent">The Dissent</a>
+    <a href="#codes">Charlie Codes</a>
+    <a href="#changes">What Changed</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- VERDICT -->
+  <section id="verdict">
+    <div class="kicker">00 · The call</div>
+    <h2>Verdict</h2>
+    <div class="grid g2">
+      <div class="card">
+        <div class="lbl">Primary lane — everything daily</div>
+        <p><strong>Claymation (style 03)</strong> for all output: video shorts, reaction stills, LinkedIn strips, reply-game ammunition. It swept all five judging lenses (9/10 on each) with no disqualifying flag — the only style that survives both existential tests (anti-slop craft and distinctive-asset ownability) while also winning the daily-utility tests (thumbnail legibility, deadpan register, production consistency).</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Everything else</div>
+        <p><strong>Photoreal (01): retired.</strong> Eliminated, not outscored — it rendered three different dogs across three test images, dies at thumbnail size, and at feed size it is functionally Gong's Bruno (a real bulldog, adjacent category): an active misattribution liability with no answer to "why not film a real dog?" <strong>Felt (06): no role</strong> — everything it does, clay does better, and it breaks the never-cute guardrail. <strong>Comic (05): one gated static-editorial role</strong> (blog headers, deck art) — never video, never daily.</p>
+      </div>
+    </div>
+    <div class="callout good">
+      <div class="ct">Why the generic-bulldog decision forced this</div>
+      <p>The old two-lane system (clay hero / photoreal reactive) was built on a real dog existing: photoreal meant "a real dog reacting," and monthly real-Charlie photos were the anti-slop anchor. With a fictional bulldog, photoreal inverts into the <em>highest</em>-risk lane — a photorealistic genAI dog passing as real is exactly what a slop-literate marketer audience punishes — while clay's handmade-look artifacts read as intentional craft. One locked style also maximizes fluent-device compounding: every post re-encodes one memory structure instead of splitting across two.</p>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section id="method">
+    <div class="kicker">01 · How we decided</div>
+    <h2>Method</h2>
+    <p class="lede">Ten style samples reviewed; six eliminated on documented grounds; four finalists tested head-to-head with matched renders — same prompts, style swapped — then judged by five independent evaluators, each restricted to a single lens, plus a synthesis chair.</p>
+    <ul class="list">
+      <li><strong>Matched test set (14 renders):</strong> the reply-game unit ("the stare," 1:1), a two-generation drift pair (same prompt rendered twice — identity consistency under repetition), and a complex 9:16 video keyframe (dusk office, chart on monitor) for each of clay / photoreal / felt; stare + LinkedIn panel for comic.</li>
+      <li><strong>Small-size legibility sheet:</strong> each style's stare at 320 / 96 / 48 px — the sizes a reaction still actually lives at in reply threads.</li>
+      <li><strong>Five lenses:</strong> feed legibility · anti-slop craft signal · distinctive-asset ownability · comedic register fit · production viability. The two existential lenses (slop, ownability) weighted first per the <a href="charlie-virality-analysis.html">strategy analysis</a>.</li>
+    </ul>
+  </section>
+
+  <!-- MATRIX -->
+  <section id="matrix">
+    <div class="kicker">02 · The numbers</div>
+    <h2>Score matrix</h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Lens</th><th style="text-align:center">Clay</th><th style="text-align:center">Photoreal</th><th style="text-align:center">Felt</th><th style="text-align:center">Comic</th><th style="width:38%">Deciding observation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Feed legibility</strong> (96/48px)</td><td class="n win">9</td><td class="n kill">4</td><td class="n">7</td><td class="n">6</td><td>Clay's sculpted brow shelf reads "annoyed" even at 48px; photoreal's brindle coat swallows the eyes into a noisy blob; felt drifts "sleepy/sad"; comic's hatching collapses into an angry raccoon-mask.</td></tr>
+        <tr><td><strong>Anti-slop craft</strong></td><td class="n win">9</td><td class="n kill">2</td><td class="n">7</td><td class="n">8</td><td>Clay's thumbprint texture + miniature set-building is an authored-craft alibi, and stop-motion choppiness is in-genre for video. Photoreal self-incriminates ("why not film a real dog?"). Felt's fine fibers are prime i2v shimmer territory.</td></tr>
+        <tr><td><strong>Distinctive asset</strong></td><td class="n win">9</td><td class="n kill">2</td><td class="n">8</td><td class="n">6</td><td>Photoreal is functionally Gong's Bruno at feed size — probable active misattribution in an adjacent category. Clay's brow-ridge + graphic eyes are proprietary codes that survive at avatar size.</td></tr>
+        <tr><td><strong>Register fit</strong> (dry, never cute)</td><td class="n win">9</td><td class="n">7</td><td class="n kill">5</td><td class="n">7</td><td>Silent British deadpan is claymation's native register. Felt reads soft-toy (violates the never-cute guardrail). Comic runs grim rather than funny. Photoreal reads pet-influencer warmth.</td></tr>
+        <tr><td><strong>Production viability</strong></td><td class="n win">9</td><td class="n kill">4</td><td class="n">7</td><td class="n">—</td><td>Drift test: clay held one identity across repeated generations; photoreal produced effectively three different dogs (brindle is a fingerprint). Clay's matte macro-forms are the most i2v-forgiving surface.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section id="evidence">
+    <div class="kicker">03 · See it yourself</div>
+    <h2>Evidence</h2>
+    <h3>The legibility sheet — where the reply game actually happens</h3>
+    <div class="wide-img"><a href="assets/prepro/style-test/legibility-sheet.png" target="_blank"><img src="assets/prepro/style-test/legibility-sheet.png" alt="Legibility comparison at 320/96/48px"/></a></div>
+    <h3>The matched stares</h3>
+    <div class="gallery">
+      <figure class="shot"><a class="img" href="assets/prepro/style-test/clay/stare.jpg" target="_blank"><img src="assets/prepro/style-test/clay/stare.jpg" alt="Clay stare" loading="lazy"/></a><div class="cap"><b>Clay</b> · winner — the brow IS the expression</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/style-test/photoreal/stare.jpg" target="_blank"><img src="assets/prepro/style-test/photoreal/stare.jpg" alt="Photoreal stare" loading="lazy"/></a><div class="cap"><b>Photoreal</b> · retired — reads "Bruno" at feed size</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/style-test/felt/stare.jpg" target="_blank"><img src="assets/prepro/style-test/felt/stare.jpg" alt="Felt stare" loading="lazy"/></a><div class="cap"><b>Felt</b> · no role — soft-toy warmth</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/style-test/comic/stare.jpg" target="_blank"><img src="assets/prepro/style-test/comic/stare.jpg" alt="Comic stare" loading="lazy"/></a><div class="cap"><b>Comic</b> · static editorial only</div></figure>
+    </div>
+    <h3>Clay under production stress</h3>
+    <div class="gallery">
+      <figure class="shot"><a class="img" href="assets/prepro/style-test/clay/blink-a.jpg" target="_blank"><img src="assets/prepro/style-test/clay/blink-a.jpg" alt="Clay drift test A" loading="lazy"/></a><div class="cap"><b>Drift test A</b> · same prompt, generation 1</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/style-test/clay/blink-b.jpg" target="_blank"><img src="assets/prepro/style-test/clay/blink-b.jpg" alt="Clay drift test B" loading="lazy"/></a><div class="cap"><b>Drift test B</b> · generation 2 — same dog, same codes</div></figure>
+      <figure class="shot p916"><a class="img" href="assets/prepro/style-test/clay/keyframe.jpg" target="_blank"><img src="assets/prepro/style-test/clay/keyframe.jpg" alt="Clay video keyframe" loading="lazy"/></a><div class="cap"><b>Video keyframe</b> · legible chart, hand-built set</div></figure>
+    </div>
+  </section>
+
+  <!-- DISPOSITION -->
+  <section id="disposition">
+    <div class="kicker">04 · Nothing left ambiguous</div>
+    <h2>Disposition of all ten styles</h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:22%">Style</th><th style="width:18%">Disposition</th><th>Grounds</th></tr></thead>
+      <tbody>
+        <tr><td><strong>03 · Claymation</strong></td><td class="win">PRIMARY — everything</td><td>Unanimous five-lens sweep. Native dry-British register, thumbnail-proof legibility, lowest drift, most i2v-forgiving, strongest craft alibi.</td></tr>
+        <tr><td><strong>05 · Comic</strong></td><td>Gated static editorial</td><td>Densest per-image craft; static-only. Blog headers, deck art, occasional LinkedIn one-offs. Gate: pass a consistency test first; register runs grim, so always ship with joke context. Never video, never daily.</td></tr>
+        <tr><td><strong>01 · Photoreal</strong></td><td class="kill">Retired</td><td>Bruno collision, thumbnail illegibility, worst drift (three dogs in three renders), highest slop exposure with no real dog behind it. Archive kept at <code>assets/prepro/_retired-photoreal/</code>.</td></tr>
+        <tr><td><strong>06 · Felt puppet</strong></td><td class="kill">No role</td><td>Second on most lenses, first on none; violates never-cute; fiber shimmer risk in video. Fully dominated by clay.</td></tr>
+        <tr><td><strong>02 · Pixar CGI</strong></td><td class="kill">Eliminated pre-test</td><td>Kid-cute register undercuts B2B credibility; the single most "generic AI mascot" aesthetic of 2024–26 — maximum slop association.</td></tr>
+        <tr><td><strong>04 · 2D vector</strong></td><td class="kill">Eliminated pre-test</td><td>The crowded default of B2B brand social; least personality; nothing ownable.</td></tr>
+        <tr><td><strong>07 · Ghibli watercolor</strong></td><td class="kill">Eliminated pre-test</td><td>Tonally soft against a dry character — and culturally radioactive: Ghibli-fied AI became the symbol of AI-slop appropriation in 2025. Worst possible signal to this audience.</td></tr>
+        <tr><td><strong>08 · Anime</strong></td><td class="kill">One-off tool only</td><td>Retained as a rare over-the-top reaction gag, per the original one-pager.</td></tr>
+        <tr><td><strong>09 · Pixel art</strong></td><td class="kill">One-off tool only</td><td>Stunt/retro moments; emotional range collapses at sprite resolution.</td></tr>
+        <tr><td><strong>10 · Mid-century flat</strong></td><td class="kill">Brand-identity system only</td><td>Functions as a logo treatment, not a performing character.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- DISSENT -->
+  <section id="dissent">
+    <div class="kicker">05 · Steelman</div>
+    <h2>The dissent, on the record</h2>
+    <div class="callout risk">
+      <div class="ct">The strongest argument against clay</div>
+      <p>By mid-2026, "Aardman-style claymation" is itself a one-prompt genAI trope. A slop-literate marketer may read the clay coat as costume rather than craft — "AI cosplaying stop-motion" — collapsing the very defense it was chosen for, while courting style-attribution to Wallace &amp; Gromit instead of the brand (fame-without-linkage, the #2 kill risk).</p>
+    </div>
+    <p><strong>Why it loses:</strong> the objection attacks clay's ceiling, not its floor. The alibi holds if — and only if — <em>continuity</em> is enforced: the same pin, the same sweater, the same sets, the same sculpt in every post. A one-prompt trope is a style; a character with locked recurring codes across months is a property. That is executable discipline (below). Photoreal's problem, by contrast, is structural and has no mitigation. The dissent survives as four standing risks:</p>
+    <ul class="list">
+      <li><strong>Style-attribution drift</strong> ("the Gromit dog") → hard-code proprietary assets; the crest pin is the #1 lock (it varied across test renders — now fixed in the codes below).</li>
+      <li><strong>Garbled pseudo-text props</strong> (diplomas, notepads, a hallucinated "CHIEF INSPECTOR B. M. BULLDOG" nameplate) are instant genAI tells → in-scene text is now banned unless explicitly specified; wall art must be abstract. Baked into the render pipeline's negative prompt.</li>
+      <li><strong>i2v character drift</strong> at daily volume → seeded reference set, per-asset identity QC, the 10-clip pilot before anything ships.</li>
+      <li><strong>Register drift to twee</strong> — the clay medium invites cute → eyes stay half-lidded, no wide-eye, no head-tilt. Now in the negative prompt and the bible.</li>
+    </ul>
+  </section>
+
+  <!-- CODES -->
+  <section id="codes">
+    <div class="kicker">06 · Character bible v1 — visual spec</div>
+    <h2>The locked Charlie codes</h2>
+    <p class="lede">A fictional character's identity is nothing but its codes. These are now hard-coded into every render prompt (<code>preproduce_charlie.py</code>) and are the fluent-device assets every post must re-encode. Changing any of them is a brand decision, not a creative choice.</p>
+    <pre><span class="k">MEDIUM</span>    stop-motion clay puppet · visible thumbprint texture · hand-built
+          miniature sets · practical in-set lighting · painted backdrops
+<span class="k">HEAD</span>      tan with a white blaze down the muzzle · graying jowls ·
+          heavy sculpted brow ridges (the expression engine)
+<span class="k">EYES</span>      HEAVY-LIDDED, always. flat graphic whites, black-dot pupils.
+          never wide open. never glossy. the half-closed eye IS the brand.
+<span class="k">WARDROBE</span>  navy chunky cable-knit sweater · white shirt collar · dark tie ·
+          ONE small gold shield-crest lapel pin (never varies)
+<span class="k">WORLD</span>     his office desk · conference room · break room · commute · webcam.
+          indoor, office light or screen glow. never a park. never a beach.
+<span class="k">TEXT</span>      no readable in-scene text unless the joke requires it — then the
+          exact string is specified and must render legibly, or the prop
+          text is added post-hoc as an authored overlay.
+<span class="k">POSE BAN</span>  wide eyes · head tilts · tongue out · play bows · standing on
+          hind legs · anything a plush toy would do</pre>
+  </section>
+
+  <!-- CHANGES -->
+  <section id="changes" style="border-bottom:0">
+    <div class="kicker">07 · Applied</div>
+    <h2>What changed downstream</h2>
+    <ul class="list">
+      <li><strong>Supersedes the two-lane call</strong> in the <a href="charlie-project.html">one-pager</a> (§04): the reactive lane is now clay too. The speed argument for photoreal is void — the pre-rendered clay reaction library serves the 24–72h window just as fast.</li>
+      <li><strong>The pre-production pack is re-rendered in the clay canon:</strong> reference scenes, the 8-still reaction pack, the stack-audit strip, and storyboards SB-05…08 (SB-01…04 and strip 2 were already clay). Retired photoreal originals archived at <code>assets/prepro/_retired-photoreal/</code>. The PDF carousel is rebuilt from clay stills. See <a href="charlie-preproduction.html">the pre-production pack</a>.</li>
+      <li><strong>The anti-slop defense is restated</strong> (the "real dog anchor" no longer exists): own the AI-ness in the bio, visible handcraft aesthetic + low cadence as the craft signal, enforced code continuity as the authorship proof, and openly-fictional character lore. "Charlie is real" copy is retired — the standing line becomes: <em>"Charlie is clay. The opinions are real."</em></li>
+      <li><strong>Bruno separation is now structural:</strong> a clay puppet in a tie cannot be mistaken for Gong's photographed bulldog. The quarterly fluency survey stays as the check.</li>
+      <li><strong>The 10-clip i2v pilot</strong> runs on clay keyframes (SB-05 first) — the last gate before anything ships publicly.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Charlie — style decision record · July 7, 2026 · matched test renders in <code>assets/prepro/style-test/</code> · judged by a five-lens panel + synthesis chair (multi-agent) · companion to <code>charlie-project.html</code>, <code>charlie-virality-analysis.html</code>, <code>charlie-preproduction.html</code>
+  </div>
+</footer>
+
+</body>
+</html>

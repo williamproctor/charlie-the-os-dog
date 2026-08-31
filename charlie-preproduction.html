@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Charlie — Pre-Production Pack v1</title>
+<style>
+  :root{
+    --bg:#0c0d10; --bg2:#131519; --panel:#16181d; --panel2:#1c1f26;
+    --line:#282c34; --line2:#333844;
+    --ink:#f4f5f7; --sub:#aeb4c0; --mut:#7d8595;
+    --accent:#e8a33d; --accent2:#f2c078;
+    --good:#57c98a; --warn:#e8a33d; --danger:#e5736b;
+    --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-size:16px}
+  a{color:var(--accent2);text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  header.hero{position:relative;overflow:hidden;
+    background:
+      radial-gradient(1000px 500px at 80% -10%, rgba(232,163,61,.18), transparent 60%),
+      radial-gradient(700px 400px at 0% 0%, rgba(110,168,255,.08), transparent 55%),
+      linear-gradient(180deg,#101216, #0c0d10);
+    border-bottom:1px solid var(--line)}
+  .hero-inner{padding:56px 0 44px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);
+    border:1px solid var(--line2);background:rgba(232,163,61,.06);
+    padding:6px 12px;border-radius:100px;margin-bottom:20px}
+  .eyebrow .d{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1.title{font-size:clamp(34px,5.2vw,54px);line-height:1.05;letter-spacing:-.02em;font-weight:800}
+  h1.title span{color:var(--accent)}
+  .tag{margin-top:16px;font-size:18px;color:var(--sub);max-width:760px}
+  .hero-meta{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--sub);background:var(--panel);
+    border:1px solid var(--line);border-radius:100px;padding:7px 13px}
+  .chip b{color:var(--ink)}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(12,13,16,.86);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .toc-inner{display:flex;gap:6px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+  .toc-inner::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap;font-size:13px;color:var(--mut);padding:7px 13px;border-radius:100px;
+    border:1px solid transparent;transition:.15s}
+  nav.toc a:hover{color:var(--ink);background:var(--panel);border-color:var(--line)}
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(24px,3.2vw,32px);letter-spacing:-.01em;font-weight:750;margin-bottom:8px}
+  h2 + .lede{color:var(--sub);font-size:16.5px;max-width:780px;margin-bottom:24px}
+  h3{font-size:17px;margin:24px 0 10px;font-weight:650}
+  p{color:var(--sub)}
+  strong{color:var(--ink);font-weight:650}
+  em{color:var(--accent2);font-style:normal}
+  .callout{border:1px solid var(--line2);border-left:3px solid var(--accent);
+    background:linear-gradient(90deg,rgba(232,163,61,.07),rgba(232,163,61,0));
+    border-radius:12px;padding:16px 18px;margin:20px 0}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout .ct{font-weight:700;color:var(--ink);margin-bottom:6px;font-size:14px}
+  .callout p{color:#d5d9e0;font-size:14.5px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:14px}
+  .gallery.wide{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .shot{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:.16s}
+  .shot:hover{transform:translateY(-3px);border-color:var(--line2)}
+  .shot a.img{display:block;background:#0a0b0d}
+  .shot img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover}
+  .shot.p45 img{aspect-ratio:4/5}
+  .shot.p916 img{aspect-ratio:9/16}
+  .shot.l169 img{aspect-ratio:16/10}
+  .shot .cap{padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--mut)}
+  .shot .cap b{color:var(--sub);font-weight:600}
+  .board{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin-top:16px}
+  .board .bh{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:4px}
+  .board h4{font-size:16px}
+  .board .badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+    background:var(--accent);color:#1a1204;font-weight:700;padding:3px 8px;border-radius:6px}
+  .board .badge.clay{background:#8fb47e;color:#101a0c}
+  .board .meta{font-family:var(--mono);font-size:11px;color:var(--mut)}
+  .board p.log{font-size:14px;color:var(--sub);margin-bottom:10px}
+  .frames{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media(max-width:700px){.frames{grid-template-columns:repeat(2,1fr)}}
+  .frames a{display:block;background:#0a0b0d;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .frames img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+  td{color:var(--sub)}
+  td strong{color:var(--ink)}
+  ul.list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  ul.list li{position:relative;padding-left:24px;color:var(--sub)}
+  ul.list li::before{content:"";position:absolute;left:4px;top:11px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+  footer{padding:36px 0 64px;color:var(--mut);font-family:var(--mono);font-size:12px}
+</style>
+</head>
+<body>
+<nav style="background:#0a0b0d;border-bottom:1px solid #282c34;font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:12px"><div style="max-width:1120px;margin:0 auto;padding:11px 24px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center"><span style="color:#f2c078;letter-spacing:.12em">CHARLIE · THE OS DOG</span><span style="color:#333844">|</span><a style="color:#7d8595;text-decoration:none" href="index.html">Overview</a><a style="color:#7d8595;text-decoration:none" href="charlie-project.html">One-Pager</a><a style="color:#7d8595;text-decoration:none" href="charlie-virality-analysis.html">Viral Analysis</a><a style="color:#7d8595;text-decoration:none" href="charlie-style-decision.html">Style Decision</a><a style="color:#e8a33d;font-weight:700;text-decoration:none" href="charlie-preproduction.html">Pre-Production</a></div></nav>
+
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <span class="eyebrow"><span class="d"></span>GrowthX · Charlie Franchise · Pre-Production</span>
+    <h1 class="title">Charlie <span>— Pre-Production Pack v1</span></h1>
+    <p class="tag">Everything generated for launch prep: the completed visual reference set, the canonical reaction pack, LinkedIn-native static assets in the formats that currently win there, and eight storyboarded video shorts with i2v-ready keyframes. All genAI stills: gpt-image-2, anchored to the locked style references. Companion to the <a href="charlie-project.html">one-pager</a> and the <a href="charlie-virality-analysis.html">viral-mechanics analysis</a>.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>Style:</b> clay canon locked (<a href="charlie-style-decision.html">decision</a>)</span>
+      <span class="chip"><b>Consistency:</b> images.edit vs style ref 03</span>
+      <span class="chip"><b>Grade:</b> pre-production (10-clip i2v pilot pending)</span>
+      <span class="chip"><b>Date:</b> July 7, 2026</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap toc-inner">
+    <a href="#refs">Reference Set</a>
+    <a href="#pack">Reaction Pack</a>
+    <a href="#linkedin">LinkedIn Assets</a>
+    <a href="#boards">Storyboards</a>
+    <a href="#notes">Production Notes</a>
+    <a href="#next">Next</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- REFS -->
+  <section id="refs">
+    <div class="kicker">01 · Canon complete</div>
+    <h2>Reference set — the four missing scenes, rendered</h2>
+    <p class="lede">The one-pager's reference set had two of six scenes rendered. The remaining four are now done in the locked clay canon, completing the visual canon every future clip cites.</p>
+    <div class="gallery wide">
+      <figure class="shot l169"><a class="img" href="assets/prepro/refs/charlie-ref-03-conference-room.jpg" target="_blank"><img src="assets/prepro/refs/charlie-ref-03-conference-room.jpg" alt="Asleep in the conference room" loading="lazy"/></a><div class="cap"><b>03 · Conference room</b> · 16:9 · set piece</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/refs/charlie-ref-04-reaction.jpg" target="_blank"><img src="assets/prepro/refs/charlie-ref-04-reaction.jpg" alt="The reaction" loading="lazy"/></a><div class="cap"><b>04 · The reaction</b> · 1:1 · reply game</div></figure>
+      <figure class="shot p916"><a class="img" href="assets/prepro/refs/charlie-ref-05-commute.jpg" target="_blank"><img src="assets/prepro/refs/charlie-ref-05-commute.jpg" alt="The commute" loading="lazy"/></a><div class="cap"><b>05 · The commute</b> · 9:16 · day-in-life</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/refs/charlie-ref-06-webcam-stare.jpg" target="_blank"><img src="assets/prepro/refs/charlie-ref-06-webcam-stare.jpg" alt="The webcam stare" loading="lazy"/></a><div class="cap"><b>06 · Webcam stare</b> · 1:1 · screen-share</div></figure>
+    </div>
+  </section>
+
+  <!-- PACK -->
+  <section id="pack">
+    <div class="kicker">02 · Ammunition</div>
+    <h2>The canonical reaction pack</h2>
+    <p class="lede">Eight stills built for the reply game on X and comment cameos on LinkedIn — the account's real growth engine for the first six weeks. Month-one move: pin them as a clean, unwatermarked "reaction pack" thread so marketers steal them. Reuse by others is the win condition.</p>
+    <div class="gallery">
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-01-the-stare.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-01-the-stare.jpg" alt="The stare" loading="lazy"/></a><div class="cap"><b>01 the stare</b> · any take</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-02-side-eye.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-02-side-eye.jpg" alt="Side eye" loading="lazy"/></a><div class="cap"><b>02 side-eye</b> · vendor hype</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-03-slow-blink.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-03-slow-blink.jpg" alt="Slow blink" loading="lazy"/></a><div class="cap"><b>03 slow blink</b> · "AI replaces marketers"</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-04-the-sigh.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-04-the-sigh.jpg" alt="The sigh" loading="lazy"/></a><div class="cap"><b>04 the sigh</b> · attribution debates</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-05-dashboard-glow.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-05-dashboard-glow.jpg" alt="Dashboard glow" loading="lazy"/></a><div class="cap"><b>05 dashboard glow</b> · traffic studies</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-06-walking-out.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-06-walking-out.jpg" alt="Walking out" loading="lazy"/></a><div class="cap"><b>06 walking out</b> · should've been an email</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-07-double-take.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-07-double-take.jpg" alt="Double take" loading="lazy"/></a><div class="cap"><b>07 double take</b> · wild news</div></figure>
+      <figure class="shot"><a class="img" href="assets/prepro/reaction-pack/rp-08-noted.jpg" target="_blank"><img src="assets/prepro/reaction-pack/rp-08-noted.jpg" alt="Noted" loading="lazy"/></a><div class="cap"><b>08 "noted."</b> · unsolicited advice</div></figure>
+    </div>
+  </section>
+
+  <!-- LINKEDIN -->
+  <section id="linkedin">
+    <div class="kicker">03 · LinkedIn-native</div>
+    <h2>LinkedIn asset drop — built for the formats that win there</h2>
+    <p class="lede">Per the platform research: pages are throttled and page <em>video</em> is declining, while multi-image sequences, documents (PDF), and fake-serious corporate artifacts outperform. Everything below ships from the Charlie page and gets carried by employee reshares. Full captions in <a href="assets/prepro/linkedin/POST-COPY.html">POST-COPY.md</a>.</p>
+
+    <h3>Fake-serious corporate artifacts (programmatic — crisp text, zero genAI)</h3>
+    <div class="gallery wide">
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/memos/memo-01-ai-transformation.png" target="_blank"><img src="assets/prepro/linkedin/memos/memo-01-ai-transformation.png" alt="Memo: AI transformation" loading="lazy"/></a><div class="cap"><b>Memo 01</b> · RE: Our AI transformation · "No."</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/memos/memo-02-calendar-decline.png" target="_blank"><img src="assets/prepro/linkedin/memos/memo-02-calendar-decline.png" alt="Calendar decline" loading="lazy"/></a><div class="cap"><b>Memo 02</b> · the recurring sync · declined ×11 quarters</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/memos/memo-03-aeo-review.png" target="_blank"><img src="assets/prepro/linkedin/memos/memo-03-aeo-review.png" alt="AEO performance review" loading="lazy"/></a><div class="cap"><b>Memo 03</b> · "AEO" annual review · Bark. (2/5)</div></figure>
+    </div>
+
+    <h3>Comic strip 1 — "The stack audit" (clay · multi-image post)</h3>
+    <div class="gallery">
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-01-stack-audit/panel-1.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-01-stack-audit/panel-1.jpg" alt="Strip 1 panel 1" loading="lazy"/></a><div class="cap"><b>P1</b> · the wall of dashboards</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-01-stack-audit/panel-2.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-01-stack-audit/panel-2.jpg" alt="Strip 1 panel 2" loading="lazy"/></a><div class="cap"><b>P2</b> · the sniff test</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-01-stack-audit/panel-3.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-01-stack-audit/panel-3.jpg" alt="Strip 1 panel 3" loading="lazy"/></a><div class="cap"><b>P3</b> · the verdict</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-01-stack-audit/panel-4.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-01-stack-audit/panel-4.jpg" alt="Strip 1 panel 4" loading="lazy"/></a><div class="cap"><b>P4</b> · the exit</div></figure>
+    </div>
+
+    <h3>Comic strip 2 — "Quarterly planning" (claymation · multi-image post)</h3>
+    <div class="gallery">
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-02-quarterly-planning/panel-1.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-02-quarterly-planning/panel-1.jpg" alt="Strip 2 panel 1" loading="lazy"/></a><div class="cap"><b>P1</b> · v14_FINAL_FINAL</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-02-quarterly-planning/panel-2.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-02-quarterly-planning/panel-2.jpg" alt="Strip 2 panel 2" loading="lazy"/></a><div class="cap"><b>P2</b> · due diligence</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-02-quarterly-planning/panel-3.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-02-quarterly-planning/panel-3.jpg" alt="Strip 2 panel 3" loading="lazy"/></a><div class="cap"><b>P3</b> · the toll</div></figure>
+      <figure class="shot p45"><a class="img" href="assets/prepro/linkedin/strip-02-quarterly-planning/panel-4.jpg" target="_blank"><img src="assets/prepro/linkedin/strip-02-quarterly-planning/panel-4.jpg" alt="Strip 2 panel 4" loading="lazy"/></a><div class="cap"><b>P4</b> · sign-off</div></figure>
+    </div>
+
+    <h3>Document post — the PDF carousel</h3>
+    <p><a href="assets/prepro/linkedin/charlie-h1-2026-review.pdf"><strong>Charlie's Mid-Year Marketing Review — H1 2026</strong></a> (7 pages: cover, five verified-stat observations with reaction stills, "H2 outlook: Bark."). Documents are LinkedIn's top-performing organic format; page PNGs also exported to <code>carousel-pages/</code> for reuse as a multi-image variant or X image-tweet.</p>
+  </section>
+
+  <!-- BOARDS -->
+  <section id="boards">
+    <div class="kicker">04 · Video shorts</div>
+    <h2>Eight storyboards, i2v-ready</h2>
+    <p class="lede">All eight boards run in the locked clay lane (per the <a href="charlie-style-decision.html">style decision</a>): four Lane-C launch-adjacent evergreens and four discourse-beat reactive evergreens. Every frame is a 9:16 keyframe for image-to-video generation — full shot specs, audio, captions and kill-conditions in each board's <code>storyboard.md</code>. Master spec: <a href="assets/prepro/storyboards/STORYBOARDS.html">STORYBOARDS.md</a>. Durations run 8–15s (revised from 15–30s — native model limits; stitching causes drift).</p>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Hero lane</span><h4>SB-01 · Charlie tries to learn Zapier</h4><span class="meta">~12s + end card · <a href="assets/prepro/storyboards/sb-01-learn-zapier/storyboard.html">specs</a></span></div>
+      <p class="log">He attempts workflow automation. He does not. End card: "You don't have to become an engineer."</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-01-learn-zapier/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-01-learn-zapier/frame-1.jpg" loading="lazy" alt="SB-01 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-01-learn-zapier/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-01-learn-zapier/frame-2.jpg" loading="lazy" alt="SB-01 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-01-learn-zapier/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-01-learn-zapier/frame-3.jpg" loading="lazy" alt="SB-01 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-01-learn-zapier/frame-4-endcard.png" target="_blank"><img src="assets/prepro/storyboards/sb-01-learn-zapier/frame-4-endcard.png" loading="lazy" alt="SB-01 end card"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Hero lane</span><h4>SB-02 · Charlie's MarTech stack</h4><span class="meta">~14s · <a href="assets/prepro/storyboards/sb-02-martech-stack/storyboard.html">specs</a></span></div>
+      <p class="log">A floor of toys. He picks the one bone. Caption arc: "the stack" → "the strategy."</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-02-martech-stack/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-02-martech-stack/frame-1.jpg" loading="lazy" alt="SB-02 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-02-martech-stack/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-02-martech-stack/frame-2.jpg" loading="lazy" alt="SB-02 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-02-martech-stack/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-02-martech-stack/frame-3.jpg" loading="lazy" alt="SB-02 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-02-martech-stack/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-02-martech-stack/frame-4.jpg" loading="lazy" alt="SB-02 frame 4"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Hero lane</span><h4>SB-03 · Charlie reads ChatGPT for his daily walks</h4><span class="meta">~13s · <a href="assets/prepro/storyboards/sb-03-chatgpt-walks/storyboard.html">specs</a></span></div>
+      <p class="log">Even the dog gets his answers from chat now. The AEO joke for the in-the-know.</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-1.jpg" loading="lazy" alt="SB-03 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-2.jpg" loading="lazy" alt="SB-03 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-3.jpg" loading="lazy" alt="SB-03 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-03-chatgpt-walks/frame-4.jpg" loading="lazy" alt="SB-03 frame 4"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Hero lane</span><h4>SB-04 · Charlie meets a marketing engineer</h4><span class="meta">~13s · <a href="assets/prepro/storyboards/sb-04-marketing-engineer/storyboard.html">specs</a></span></div>
+      <p class="log">The whiteboard has forty boxes. It needed one. Overlay on the resolve: "fixed it."</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-04-marketing-engineer/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-04-marketing-engineer/frame-1.jpg" loading="lazy" alt="SB-04 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-04-marketing-engineer/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-04-marketing-engineer/frame-2.jpg" loading="lazy" alt="SB-04 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-04-marketing-engineer/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-04-marketing-engineer/frame-3.jpg" loading="lazy" alt="SB-04 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-04-marketing-engineer/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-04-marketing-engineer/frame-4.jpg" loading="lazy" alt="SB-04 frame 4"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Reactive slot</span><h4>SB-05 · The zero-click stare</h4><span class="meta">~11s · <a href="assets/prepro/storyboards/sb-05-zero-click-stare/storyboard.html">specs</a></span></div>
+      <p class="log">The dashboard flatlines; someone off-screen says "share of model." He turns. Signature evergreen, refreshed on every traffic study.</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-05-zero-click-stare/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-05-zero-click-stare/frame-1.jpg" loading="lazy" alt="SB-05 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-05-zero-click-stare/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-05-zero-click-stare/frame-2.jpg" loading="lazy" alt="SB-05 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-05-zero-click-stare/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-05-zero-click-stare/frame-3.jpg" loading="lazy" alt="SB-05 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-05-zero-click-stare/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-05-zero-click-stare/frame-4.jpg" loading="lazy" alt="SB-05 frame 4"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Reactive slot</span><h4>SB-06 · The nameplate</h4><span class="meta">~12s · <a href="assets/prepro/storyboards/sb-06-nameplate/storyboard.html">specs</a></span></div>
+      <p class="log">SEO → AEO → GEO. Locked-off identical framing is the joke — and the exploitable-template candidate. Extended by one plate per new acronym, forever.</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-06-nameplate/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-06-nameplate/frame-1.jpg" loading="lazy" alt="SB-06 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-06-nameplate/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-06-nameplate/frame-2.jpg" loading="lazy" alt="SB-06 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-06-nameplate/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-06-nameplate/frame-3.jpg" loading="lazy" alt="SB-06 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-06-nameplate/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-06-nameplate/frame-4.jpg" loading="lazy" alt="SB-06 frame 4"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Reactive slot</span><h4>SB-07 · Inbox purgatory</h4><span class="meta">~11s · <a href="assets/prepro/storyboards/sb-07-inbox-purgatory/storyboard.html">specs</a></span></div>
+      <p class="log">47 AI SDR emails. One paw. Zero reads. Never names a vendor — the genre is the target.</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-1.jpg" loading="lazy" alt="SB-07 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-2.jpg" loading="lazy" alt="SB-07 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-3.jpg" loading="lazy" alt="SB-07 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-4.jpg" loading="lazy" alt="SB-07 frame 4"/></a>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="bh"><span class="badge clay">Clay · Reactive slot</span><h4>SB-08 · CMO extinction watch</h4><span class="meta">~12s · <a href="assets/prepro/storyboards/sb-08-cmo-extinction/storyboard.html">specs</a></span></div>
+      <p class="log">Another F500 deletes the CMO title; he dusts the nameplate. The character-defining series. Hard rule: never within two weeks of real layoffs at the company in the news.</p>
+      <div class="frames">
+        <a href="assets/prepro/storyboards/sb-08-cmo-extinction/frame-1.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-08-cmo-extinction/frame-1.jpg" loading="lazy" alt="SB-08 frame 1"/></a>
+        <a href="assets/prepro/storyboards/sb-08-cmo-extinction/frame-2.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-08-cmo-extinction/frame-2.jpg" loading="lazy" alt="SB-08 frame 2"/></a>
+        <a href="assets/prepro/storyboards/sb-08-cmo-extinction/frame-3.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-08-cmo-extinction/frame-3.jpg" loading="lazy" alt="SB-08 frame 3"/></a>
+        <a href="assets/prepro/storyboards/sb-08-cmo-extinction/frame-4.jpg" target="_blank"><img src="assets/prepro/storyboards/sb-08-cmo-extinction/frame-4.jpg" loading="lazy" alt="SB-08 frame 4"/></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <section id="notes">
+    <div class="kicker">05 · How this was built</div>
+    <h2>Production notes</h2>
+    <div class="callout warn">
+      <div class="ct">⚠ Grade: prototype</div>
+      <p>Charlie is now a <strong>fully fictional bulldog in a locked clay canon</strong> (see the <a href="charlie-style-decision.html">style decision</a>) — the real-dog reference shoot is no longer a blocker. All stills are anchored to the clay style reference with the locked character codes baked into every prompt. Remaining gate before public shipping: the 10-clip i2v consistency pilot. Retired photoreal originals are archived at <code>assets/prepro/_retired-photoreal/</code>.</p>
+    </div>
+    <ul class="list">
+      <li><strong>Format selection is research-driven:</strong> LinkedIn assets are multi-image strips, a PDF document, and fake-serious artifacts — the three formats currently outperforming page video there. X assets are 1:1 reaction stills + 9:16 video boards.</li>
+      <li><strong>Text never goes through genAI.</strong> Memos, end cards and carousel pages are PIL-composed (<code>static_charlie_artifacts.py</code>) — crisp type, zero artifact risk, instantly re-editable.</li>
+      <li><strong>Pipelines are re-runnable:</strong> <code>preproduce_charlie.py</code> (51-image catalog, batched, skip-if-exists) and <code>static_charlie_artifacts.py</code> (memos / endcard / carousel). Both read the key from <code>.env</code>.</li>
+      <li><strong>Disclosure is baked into the copy pack</strong> — AI note in the first two sentences on LinkedIn, "Made with AI" toggle on X, and the standing line: <em>"Charlie is clay. The opinions are real."</em></li>
+      <li><strong>Nameplate frames double as the template drop</strong> — the blank-plate still is engineered for community captioning (the exploitable format play).</li>
+    </ul>
+  </section>
+
+  <!-- NEXT -->
+  <section id="next" style="border-bottom:0">
+    <div class="kicker">06 · Unblock</div>
+    <h2>What's next</h2>
+    <ul class="list">
+      <li><strong>Character bible v1 sign-off</strong> — the visual codes are locked (<a href="charlie-style-decision.html#codes">Charlie codes</a>); voice, ban-list, and crisis protocol still need writing + a second trained writer.</li>
+      <li><strong>Review this pack:</strong> approve/kill each reaction still and storyboard; flag any frame for re-roll (composition notes in each <code>storyboard.md</code>).</li>
+      <li><strong>i2v pilot:</strong> run SB-05 (cheapest: 4 static-camera shots) through Veo 3.1 Fast off these keyframes as the 10-clip consistency pilot.</li>
+      <li><strong>Account plumbing</strong> before post #1: X Premium Business + affiliate badge, HDYHAU form field, GSC branded-query baseline (per the <a href="charlie-virality-analysis.html#measurement">measurement contract</a>).</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Charlie — pre-production pack v1 · July 7, 2026 · 51 gpt-image-2 renders (images.edit, style-ref anchored) + 5 programmatic artifacts · sources: <code>preproduce_charlie.py</code>, <code>static_charlie_artifacts.py</code>, <code>assets/prepro/</code>
+  </div>
+</footer>
+
+</body>
+</html>

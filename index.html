@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Charlie — The OS Dog</title>
+<meta name="description" content="The complete research and pre-production record for Charlie, the GrowthX bulldog character program: strategy, viral mechanics, the locked style, and every asset." />
+<style>
+  :root{
+    --bg:#0c0d10; --bg2:#131519; --panel:#16181d; --panel2:#1c1f26;
+    --line:#282c34; --line2:#333844;
+    --ink:#f4f5f7; --sub:#aeb4c0; --mut:#7d8595;
+    --accent:#e8a33d; --accent2:#f2c078;
+    --good:#57c98a; --warn:#e8a33d; --danger:#e5736b;
+    --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-size:16px}
+  a{color:var(--accent2);text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  header.hero{position:relative;overflow:hidden;
+    background:
+      radial-gradient(1000px 500px at 80% -10%, rgba(232,163,61,.18), transparent 60%),
+      radial-gradient(700px 400px at 0% 0%, rgba(110,168,255,.08), transparent 55%),
+      linear-gradient(180deg,#101216, #0c0d10);
+    border-bottom:1px solid var(--line)}
+  .hero-inner{padding:72px 0 56px;display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}
+  @media(max-width:820px){.hero-inner{grid-template-columns:1fr}}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);
+    border:1px solid var(--line2);background:rgba(232,163,61,.06);
+    padding:6px 12px;border-radius:100px;margin-bottom:20px}
+  .eyebrow .d{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1.title{font-size:clamp(40px,6vw,64px);line-height:1.02;letter-spacing:-.02em;font-weight:800}
+  h1.title span{color:var(--accent)}
+  .tag{margin-top:18px;font-size:19px;color:var(--sub);max-width:640px}
+  .hero-meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--sub);background:var(--panel);
+    border:1px solid var(--line);border-radius:100px;padding:7px 13px}
+  .chip b{color:var(--ink)}
+  .hero-img{border-radius:20px;overflow:hidden;border:1px solid var(--line2);
+    box-shadow:0 24px 60px rgba(0,0,0,.45);transform:rotate(1.2deg)}
+  .hero-img img{width:100%;display:block}
+  .hero-img .cap{background:var(--panel);padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--mut)}
+
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;font-weight:750;margin-bottom:8px}
+  h2 + .lede{color:var(--sub);font-size:17px;max-width:780px;margin-bottom:26px}
+  p{color:var(--sub)}
+  strong{color:var(--ink);font-weight:650}
+  em{color:var(--accent2);font-style:normal}
+
+  .docs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  @media(max-width:760px){.docs{grid-template-columns:1fr}}
+  .doc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;display:flex;flex-direction:column;transition:.16s}
+  .doc:hover{transform:translateY(-4px);border-color:var(--line2)}
+  .doc .img{aspect-ratio:16/8;overflow:hidden;background:#0a0b0d;position:relative}
+  .doc .img img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+  .doc .num{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:11px;
+    background:rgba(10,11,13,.78);border:1px solid var(--line2);color:var(--accent2);
+    padding:4px 10px;border-radius:8px;letter-spacing:.08em}
+  .doc .body{padding:18px 20px 20px}
+  .doc h3{font-size:19px;margin-bottom:6px}
+  .doc p{font-size:14.5px;color:var(--sub)}
+  .doc .go{margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--accent2)}
+
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:760px){.g2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--mut);margin-bottom:10px}
+  .card p{color:#d5d9e0}
+  ul.list{list-style:none;display:flex;flex-direction:column;gap:11px;margin-top:6px}
+  ul.list li{position:relative;padding-left:24px;color:var(--sub)}
+  ul.list li::before{content:"";position:absolute;left:4px;top:11px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14.5px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+  td{color:var(--sub)}
+  td strong{color:var(--ink)}
+  .table-scroll{overflow-x:auto}
+  .table-scroll table{min-width:560px}
+
+  .phase{display:grid;grid-template-columns:150px 1fr 130px;gap:16px;align-items:start;
+    padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border-bottom:0}
+  .phase .p{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:700}
+  .phase .when{font-family:var(--mono);font-size:12px;color:var(--mut);text-align:right}
+  .phase .when.done{color:var(--good)}
+  @media(max-width:640px){.phase{grid-template-columns:1fr}.phase .when{text-align:left}}
+
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+  @media(max-width:700px){.strip{grid-template-columns:repeat(2,1fr)}}
+  .strip a{display:block;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0a0b0d;transition:.15s}
+  .strip a:hover{transform:translateY(-3px);border-color:var(--line2)}
+  .strip img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover}
+
+  footer{padding:40px 0 70px;color:var(--mut);font-family:var(--mono);font-size:12px}
+</style>
+</head>
+<body>
+<nav style="background:#0a0b0d;border-bottom:1px solid #282c34;font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:12px"><div style="max-width:1120px;margin:0 auto;padding:11px 24px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center"><span style="color:#f2c078;letter-spacing:.12em">CHARLIE · THE OS DOG</span><span style="color:#333844">|</span><a style="color:#e8a33d;font-weight:700;text-decoration:none" href="index.html">Overview</a><a style="color:#7d8595;text-decoration:none" href="charlie-project.html">One-Pager</a><a style="color:#7d8595;text-decoration:none" href="charlie-virality-analysis.html">Viral Analysis</a><a style="color:#7d8595;text-decoration:none" href="charlie-style-decision.html">Style Decision</a><a style="color:#7d8595;text-decoration:none" href="charlie-preproduction.html">Pre-Production</a></div></nav>
+
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <span class="eyebrow"><span class="d"></span>GrowthX · Generative Character Franchise</span>
+      <h1 class="title">Charlie<br/><span>— The OS Dog</span></h1>
+      <p class="tag">The complete research and pre-production record for a brand-adjacent character program: a senior clay bulldog, CMO Emeritus, reacting silently to the marketing industry he has outlasted. Strategy, evidence, the locked look, and every asset — in four documents.</p>
+      <div class="hero-meta">
+        <span class="chip"><b>4</b> research docs</span>
+        <span class="chip"><b>90+</b> renders</span>
+        <span class="chip"><b>Style:</b> clay canon, locked</span>
+        <span class="chip"><b>As of:</b> July 2026</span>
+      </div>
+    </div>
+    <figure class="hero-img">
+      <img src="assets/prepro/reaction-pack/rp-01-the-stare.jpg" alt="Charlie — the stare (clay canon)"/>
+      <figcaption class="cap">rp-01 · the stare · clay canon</figcaption>
+    </figure>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- DOCS -->
+  <section id="docs">
+    <div class="kicker">The record · read in order</div>
+    <h2>Four documents, one program</h2>
+    <p class="lede">Each document builds on the last: who the character is, why the strategy works, how the look was chosen, and what's already built.</p>
+    <div class="docs">
+      <a class="doc" href="charlie-project.html">
+        <div class="img"><span class="num">01 · CHARACTER</span><img src="assets/charlie-prototype-01-hero.jpg" alt="Project one-pager"/></div>
+        <div class="body">
+          <h3>Project One-Pager</h3>
+          <p>Who Charlie is: identity, personality and voice, wardrobe and world, tonal guardrails, the ten style renders, content pillars, and the rollout plan.</p>
+          <div class="go">Read the one-pager →</div>
+        </div>
+      </a>
+      <a class="doc" href="charlie-virality-analysis.html">
+        <div class="img"><span class="num">02 · STRATEGY</span><img src="assets/prepro/reaction-pack/rp-05-dashboard-glow.jpg" alt="Viral mechanics analysis"/></div>
+        <div class="body">
+          <h3>Viral-Mechanics Analysis</h3>
+          <p>The web-verified evidence base: why brand-adjacent characters work, case-study teardowns (Duolingo to Nutter Butter), the 2026 meme landscape, X and LinkedIn playbooks, risks, and measurement.</p>
+          <div class="go">Read the analysis →</div>
+        </div>
+      </a>
+      <a class="doc" href="charlie-style-decision.html">
+        <div class="img"><span class="num">03 · THE LOOK</span><img src="assets/prepro/style-test/clay/stare.jpg" alt="Style decision"/></div>
+        <div class="body">
+          <h3>Style Decision</h3>
+          <p>How the clay canon was locked: matched head-to-head test renders, a five-lens judge panel, the unanimous verdict, the honest dissent, and the character codes every render must carry.</p>
+          <div class="go">Read the decision →</div>
+        </div>
+      </a>
+      <a class="doc" href="charlie-preproduction.html">
+        <div class="img"><span class="num">04 · ASSETS</span><img src="assets/prepro/storyboards/sb-07-inbox-purgatory/frame-1.jpg" alt="Pre-production pack"/></div>
+        <div class="body">
+          <h3>Pre-Production Pack</h3>
+          <p>Everything built for launch: the reference set, the reaction pack, LinkedIn-native strips, memos and the PDF carousel, and eight storyboarded video shorts with i2v-ready keyframes.</p>
+          <div class="go">Browse the pack →</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- CHARACTER -->
+  <section id="character">
+    <div class="kicker">At a glance</div>
+    <h2>The character</h2>
+    <div class="grid g2">
+      <div class="card">
+        <div class="lbl">The essence</div>
+        <p>Charlie is the <em>Larry David of marketing dogs</em> — a senior English bulldog, CMO Emeritus, 90% silent. He never sells and never names the product. His job is reacting, with maximum weariness, to an industry that has genuinely earned the reaction. The look is a hand-built stop-motion clay world: thumbprint texture, miniature sets, practical light.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">The locked codes (every render, every post)</div>
+        <ul class="list">
+          <li>Tan head, white blaze, graying jowls — <strong>always heavy-lidded eyes</strong></li>
+          <li>Navy cable-knit sweater · white collar · dark tie · one gold shield-crest pin</li>
+          <li>Office worlds only; locked-off cameras at his eye level</li>
+          <li>No readable in-scene text unless it IS the joke</li>
+          <li>Punches at systems and genres — never at people</li>
+        </ul>
+      </div>
+    </div>
+    <div class="strip">
+      <a href="assets/prepro/reaction-pack/rp-02-side-eye.jpg"><img src="assets/prepro/reaction-pack/rp-02-side-eye.jpg" alt="side-eye" loading="lazy"/></a>
+      <a href="assets/prepro/reaction-pack/rp-03-slow-blink.jpg"><img src="assets/prepro/reaction-pack/rp-03-slow-blink.jpg" alt="slow blink" loading="lazy"/></a>
+      <a href="assets/prepro/reaction-pack/rp-04-the-sigh.jpg"><img src="assets/prepro/reaction-pack/rp-04-the-sigh.jpg" alt="the sigh" loading="lazy"/></a>
+      <a href="assets/prepro/reaction-pack/rp-08-noted.jpg"><img src="assets/prepro/reaction-pack/rp-08-noted.jpg" alt="noted" loading="lazy"/></a>
+    </div>
+  </section>
+
+  <!-- DECISIONS -->
+  <section id="decisions">
+    <div class="kicker">Locked</div>
+    <h2>Key decisions on the record</h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:28%">Decision</th><th>The call</th><th style="width:26%">Where it's argued</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Brand posture</strong></td><td>Strictly brand-adjacent: Charlie never names or sells the product. Evidence-based, not timidity — brand prominence measurably kills sharing.</td><td><a href="charlie-virality-analysis.html">Analysis §1</a></td></tr>
+        <tr><td><strong>Platforms</strong></td><td>X primary (reply-game first, 2 posts/week); LinkedIn secondary (Company Page + employee amplification, static-first).</td><td><a href="charlie-virality-analysis.html">Analysis §6–7</a></td></tr>
+        <tr><td><strong>The look</strong></td><td>Single clay lane for all output — unanimous five-lens judge verdict. Photoreal retired (thumbnail-illegible, drift-prone, collides with Gong's Bruno). Comic: gated static-editorial only.</td><td><a href="charlie-style-decision.html">Style Decision</a></td></tr>
+        <tr><td><strong>Clip spec</strong></td><td>8–15s vertical, image-to-video from approved clay keyframes; room tone + one sigh; no music, ever.</td><td><a href="charlie-preproduction.html">Pre-Pro · Storyboards</a></td></tr>
+        <tr><td><strong>AI posture</strong></td><td>Openly synthetic, disclosed on every platform, craft-forward. Standing line: <em>"Charlie is clay. The opinions are real."</em></td><td><a href="charlie-virality-analysis.html">Analysis §3</a></td></tr>
+        <tr><td><strong>Timing</strong></td><td>Launches after the main product launch; no stunts in year one — jeopardy only pays on accumulated affection.</td><td><a href="charlie-project.html">One-Pager · Rollout</a></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline" style="border-bottom:0">
+    <div class="kicker">Where it stands</div>
+    <h2>Program timeline</h2>
+    <div style="margin-top:8px">
+      <div class="phase"><div class="p">Character sheet</div><div>Identity, voice, tonal guardrails, ten style renders, content pillars.</div><div class="when done">✓ done</div></div>
+      <div class="phase"><div class="p">Research</div><div>Multi-agent, web-verified analysis of character virality: case studies, 2026 meme landscape, platform mechanics, risks, measurement design.</div><div class="when done">✓ done</div></div>
+      <div class="phase"><div class="p">Style lock</div><div>Matched test renders, five-lens judge panel, clay canon locked with hard character codes; photoreal retired.</div><div class="when done">✓ done</div></div>
+      <div class="phase"><div class="p">Pre-production</div><div>Reference set, reaction pack, LinkedIn asset drop, PDF carousel, eight storyboards with i2v-ready keyframes, post-copy pack.</div><div class="when done">✓ done</div></div>
+      <div class="phase"><div class="p">i2v pilot</div><div>10-clip consistency pilot off the clay keyframes (SB-05 first) to verify the sculpt holds in motion.</div><div class="when">next</div></div>
+      <div class="phase"><div class="p">Account plumbing</div><div>X Premium Business + affiliate badge, HDYHAU field, branded-search baseline — instrumentation before post #1.</div><div class="when">next</div></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Charlie — The OS Dog · research &amp; pre-production record · GrowthX generative franchise · compiled July 2026. All character imagery is AI-generated (gpt-image-2, clay canon); memos and document artifacts are programmatic. Charlie is clay. The opinions are real.
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Charlie — Viral Mechanics · Detailed Analysis</title>
+<style>
+  :root{
+    --bg:#0c0d10; --bg2:#131519; --panel:#16181d; --panel2:#1c1f26;
+    --line:#282c34; --line2:#333844;
+    --ink:#f4f5f7; --sub:#aeb4c0; --mut:#7d8595;
+    --accent:#e8a33d;      /* warm amber — Charlie */
+    --accent2:#f2c078;
+    --good:#57c98a; --warn:#e8a33d; --danger:#e5736b; --info:#6ea8ff;
+    --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-size:16px}
+  a{color:var(--accent2);text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  header.hero{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(1000px 500px at 80% -10%, rgba(232,163,61,.18), transparent 60%),
+      radial-gradient(700px 400px at 0% 0%, rgba(110,168,255,.08), transparent 55%),
+      linear-gradient(180deg,#101216, #0c0d10);
+    border-bottom:1px solid var(--line);
+  }
+  .hero-inner{padding:64px 0 52px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);
+    border:1px solid var(--line2);background:rgba(232,163,61,.06);
+    padding:6px 12px;border-radius:100px;margin-bottom:20px}
+  .eyebrow .d{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1.title{font-size:clamp(34px,5.4vw,56px);line-height:1.05;letter-spacing:-.02em;font-weight:800}
+  h1.title span{color:var(--accent)}
+  .tag{margin-top:18px;font-size:19px;color:var(--sub);max-width:740px}
+  .hero-meta{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--sub);background:var(--panel);
+    border:1px solid var(--line);border-radius:100px;padding:7px 13px}
+  .chip b{color:var(--ink)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(12,13,16,.86);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .toc-inner{display:flex;gap:6px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+  .toc-inner::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap;font-size:13px;color:var(--mut);padding:7px 13px;border-radius:100px;
+    border:1px solid transparent;transition:.15s}
+  nav.toc a:hover{color:var(--ink);background:var(--panel);border-color:var(--line)}
+
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;font-weight:750;margin-bottom:8px}
+  h2 + .lede{color:var(--sub);font-size:17px;max-width:800px;margin-bottom:26px}
+  h3{font-size:18px;margin:26px 0 12px;font-weight:650}
+  p{color:var(--sub)}
+  p + p{margin-top:12px}
+  strong{color:var(--ink);font-weight:650}
+  em{color:var(--accent2);font-style:normal}
+  .src{font-family:var(--mono);font-size:10.5px;color:var(--mut)}
+  .src a{color:var(--mut);border-bottom:1px dotted var(--line2)}
+  .src a:hover{color:var(--accent2)}
+
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--mut);margin-bottom:10px}
+  .card p{color:#d5d9e0}
+  .card p.small{font-size:14px}
+
+  ul.list{list-style:none;display:flex;flex-direction:column;gap:11px;margin-top:6px}
+  ul.list li{position:relative;padding-left:24px;color:var(--sub)}
+  ul.list li::before{content:"";position:absolute;left:4px;top:11px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+
+  .callout{border:1px solid var(--line2);border-left:3px solid var(--accent);
+    background:linear-gradient(90deg,rgba(232,163,61,.07),rgba(232,163,61,0));
+    border-radius:12px;padding:18px 20px;margin:22px 0}
+  .callout.warn{border-left-color:var(--warn);background:linear-gradient(90deg,rgba(232,163,61,.09),transparent)}
+  .callout.good{border-left-color:var(--good);background:linear-gradient(90deg,rgba(87,201,138,.08),transparent)}
+  .callout.risk{border-left-color:var(--danger);background:linear-gradient(90deg,rgba(229,115,107,.08),transparent)}
+  .callout .ct{font-weight:700;color:var(--ink);margin-bottom:6px;font-size:14px;
+    display:flex;align-items:center;gap:8px}
+  .callout p{color:#d5d9e0;font-size:15px}
+
+  .pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
+  .pill{font-family:var(--mono);font-size:13px;color:var(--sub);background:var(--panel2);
+    border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+  .pill em{color:var(--accent2)}
+
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14.5px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+  td{color:var(--sub)}
+  td strong{color:var(--ink)}
+  .do{color:#bfe6cf}.dont{color:#ecc0bc}
+  .table-scroll{overflow-x:auto}
+  .table-scroll table{min-width:640px}
+
+  pre{background:#0a0b0d;border:1px solid var(--line);border-radius:12px;padding:20px;overflow:auto;
+    font-family:var(--mono);font-size:12.5px;color:#cdd3dd;line-height:1.7;margin-top:6px}
+  pre .k{color:var(--accent2)}
+
+  .phase{display:grid;grid-template-columns:120px 1fr 150px;gap:16px;align-items:start;
+    padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border-bottom:0}
+  .phase .p{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:700}
+  .phase .when{font-family:var(--mono);font-size:12px;color:var(--mut);text-align:right}
+  @media(max-width:640px){.phase{grid-template-columns:1fr}.phase .when{text-align:left}}
+
+  footer{padding:40px 0 70px;color:var(--mut);font-family:var(--mono);font-size:12px}
+  .two-lane{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:640px){.two-lane{grid-template-columns:1fr}}
+  .lane{border:1px solid var(--line2);border-radius:14px;padding:20px;background:var(--panel2)}
+  .lane .h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .lane .badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+    background:var(--accent);color:#1a1204;font-weight:700;padding:3px 8px;border-radius:6px}
+  .lane h4{font-size:17px}
+  .lane p{font-size:14px;color:#d5d9e0}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 6px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .stat .n{font-size:26px;font-weight:800;color:var(--accent);letter-spacing:-.01em;line-height:1.15}
+  .stat .l{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.45}
+</style>
+</head>
+<body>
+<nav style="background:#0a0b0d;border-bottom:1px solid #282c34;font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:12px"><div style="max-width:1120px;margin:0 auto;padding:11px 24px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center"><span style="color:#f2c078;letter-spacing:.12em">CHARLIE · THE OS DOG</span><span style="color:#333844">|</span><a style="color:#7d8595;text-decoration:none" href="index.html">Overview</a><a style="color:#7d8595;text-decoration:none" href="charlie-project.html">One-Pager</a><a style="color:#e8a33d;font-weight:700;text-decoration:none" href="charlie-virality-analysis.html">Viral Analysis</a><a style="color:#7d8595;text-decoration:none" href="charlie-style-decision.html">Style Decision</a><a style="color:#7d8595;text-decoration:none" href="charlie-preproduction.html">Pre-Production</a></div></nav>
+
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap hero-inner">
+    <span class="eyebrow"><span class="d"></span>GrowthX · Charlie Franchise · Strategy Analysis</span>
+    <h1 class="title">Viral marketing via a fictional character<br/><span>— the Charlie analysis</span></h1>
+    <p class="tag">A detailed, web-verified analysis of how brand-adjacent character accounts actually go viral — the evidence base, the case-study mechanics, the current (July 2026) memetic landscape, the X and LinkedIn playbooks, the risks, and how all of it applies to Charlie. Companion to the <a href="charlie-project.html">Charlie project one-pager</a>.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>Researched:</b> July 7, 2026 (live web)</span>
+      <span class="chip"><b>Method:</b> multi-agent sweep + adversarial fact-check</span>
+      <span class="chip"><b>Platforms:</b> X primary · LinkedIn secondary</span>
+      <span class="chip"><b>Stance:</b> brand-adjacent, never sells</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ TOC ============ -->
+<nav class="toc">
+  <div class="wrap toc-inner">
+    <a href="#verdict">Verdict</a>
+    <a href="#evidence">Why Characters Work</a>
+    <a href="#cases">Case Studies</a>
+    <a href="#climate">The 2026 Climate</a>
+    <a href="#memetics">Memetic Toolkit</a>
+    <a href="#topical">Topical Engine</a>
+    <a href="#x">X Playbook</a>
+    <a href="#linkedin">LinkedIn Playbook</a>
+    <a href="#formats">Owned Formats</a>
+    <a href="#coldstart">Cold Start</a>
+    <a href="#production">Production</a>
+    <a href="#risks">Risks</a>
+    <a href="#measurement">Measurement</a>
+    <a href="#plan">90-Day Plan</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- VERDICT -->
+  <section id="verdict">
+    <div class="kicker">00 · TL;DR</div>
+    <h2>Verdict</h2>
+    <p class="lede">The strategy is sound and the timing is unusually good — but the winning move is narrower than "post funny dog videos," and one risk towers over everything else.</p>
+    <div class="grid g2">
+      <div class="card">
+        <div class="lbl">What the evidence says</div>
+        <p class="small">Recurring brand characters are one of the best-evidenced levers in marketing effectiveness, and <strong>brand-adjacency isn't timidity — it's what the sharing research prescribes</strong>. Peer-reviewed work shows prominent brand presence measurably <em>reduces</em> sharing, while characters, animals, and amusement increase it. Charlie's "never sells" rule is the scientifically correct configuration, not a compromise.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">The one towering risk</div>
+        <p class="small">Charlie is a <strong>genAI video character from an AI company, launching at the absolute peak of the AI-slop backlash</strong> ("slop" was 2025's Word of the Year; OpenAI shut down the Sora app in April 2026; ~half of consumers say they prefer brands that avoid genAI content). The defense is not to hide it — it's to own it: visible craft (the locked clay canon — see the <a href="charlie-style-decision.html">style decision</a>), low cadence, disclosure as part of the bit, and an openly fictional character whose code continuity proves authorship.</p>
+      </div>
+    </div>
+    <h3>The five load-bearing conclusions</h3>
+    <ul class="list">
+      <li><strong>Charlie's exact lane is confirmed-current.</strong> Blank-stare animal reaction imagery is a live top-tier X format as of June–July 2026 (Drooling Cat, reaction-still culture). A silent, unimpressed bulldog is not a bet on a format — it's an entry into one that's already working.</li>
+      <li><strong>The account grows in the replies, not the feed.</strong> On Grok-ranked X in 2026, a zero-follower account's original posts barely travel; its replies and quote-posts travel anywhere. Charlie's first six weeks are a reply-game campaign, and his silent-reaction format is the perfect reply weapon.</li>
+      <li><strong>The topical engine is the moat.</strong> Mid-2026 marketing discourse (68% zero-click, the SEO→AEO→GEO rebrand wars, AI SDR purgatory, CMO title extinction, "mediocrity at scale") is structurally absurd and constantly refreshing. A character whose whole premise is weary seniority has an effectively unlimited fuel supply — and his "CMO Emeritus" bit is literally true: 31% of the Fortune 500 no longer has a CMO.</li>
+      <li><strong>LinkedIn is a different sport.</strong> Charlie legally cannot have a personal profile there (fictional member profiles violate LinkedIn's terms), company pages are throttled to ~1–2% of the feed, and page video is declining. LinkedIn Charlie is a static-first, employee-amplified, comment-cameo operation — not a crosspost target.</li>
+      <li><strong>Measure linkage from day one or die at the first budget review.</strong> No B2B company has ever published mascot-to-revenue numbers — Charlie is building the evidence base, not following one. Fame-without-linkage is the named failure mode (worse: Gong's mascot Bruno is <em>also a bulldog</em> in an adjacent category). Instrumentation must ship before post #1.</li>
+    </ul>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section id="evidence">
+    <div class="kicker">01 · The theory</div>
+    <h2>Why fictional characters work — the evidence base</h2>
+    <p class="lede">Strip away the case-study folklore and there's a surprisingly convergent research literature underneath. It validates the Charlie design almost point-for-point — including the parts that feel counterintuitive.</p>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">+37%</div><div class="l">higher likelihood of very large market-share gains for campaigns using a recurring character ("fluent device") — System1/IPA analysis of 400 long-term effectiveness cases <span class="src"><a href="https://lbbonline.com/news/research-by-system1-shows-memorable-characters-in-ads-boost-chances-of-profit-by-30" target="_blank">[System1/IPA]</a></span></div></div>
+      <div class="stat"><div class="n">12%</div><div class="l">of campaigns still use one (down from 41% in 1992) — recurring characters are an underpriced, uncrowded lever</div></div>
+      <div class="stat"><div class="n">~2×</div><div class="l">owned characters outperform hired celebrities at driving share growth (System1); Ipsos meta-analysis of 2,000+ videos agrees characters beat borrowed assets</div></div>
+      <div class="stat"><div class="n">190</div><div class="l">territories bought Mr. Bean off 14 episodes — silent visual comedy needs no translation, and viewers project the joke onto a reacting face <span class="src"><a href="https://en.wikipedia.org/wiki/Mr._Bean" target="_blank">[ref]</a></span></div></div>
+    </div>
+
+    <h3>Five findings that shape the design</h3>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:30%">Finding</th><th>Evidence</th><th style="width:32%">What it means for Charlie</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Brand prominence kills sharing</strong></td>
+            <td>Tellis et al., <em>Journal of Marketing</em> 2019 (two field studies of YouTube ads): early/long/persistent brand placement significantly reduces shares; information-focused content reduces shares; amusement, warmth, excitement and inspiration increase them; characters and animals amplify the emotion. <span class="src"><a href="https://www.ama.org/research-insights/research-insight-what-drives-sharing-of-digital-content/" target="_blank">[AMA summary]</a></span></td>
+            <td>The "never names GrowthOS" rule is evidence-based. When a stakeholder pushes for a product mention, cite Tellis — brand-recessive framing is what makes the content travel at all.</td></tr>
+        <tr><td><strong>Arousal drives transmission</strong></td>
+            <td>Berger &amp; Milkman, <em>JMR</em> 2012 (~7,000 NYT articles + lab studies): high-arousal emotions (amusement, awe, anxiety) get shared; low-arousal content doesn't. The most-replicated part of the virality literature.</td>
+            <td>Dry ≠ flat. Every clip needs one high-arousal beat — the "too real" wince of recognized professional pain. Test: would a Head of Content tag a colleague with "this is us"? If not, kill the clip.</td></tr>
+        <tr><td><strong>Memes spread by imitation, not resharing</strong></td>
+            <td>Shifman (MIT Press): formats persist when the <em>form</em> is fixed and cheap to imitate while the <em>content</em> slot is mutable — people prefer making their own version.</td>
+            <td>Charlie needs one format describable in a sentence ("Charlie stares silently at [marketing thing]") with a swappable slot anyone can fill from a screenshot.</td></tr>
+        <tr><td><strong>Parasocial bonds work hardest for unknown brands</strong></td>
+            <td>Garretson &amp; Niedrich, <em>Journal of Advertising</em> 2004: spokes-character trust drives brand attitude — with the strongest effects on consumers with little brand experience. (Foundation: Horton &amp; Wohl 1956.)</td>
+            <td>GrowthX's obscurity is a feature: Charlie carries disproportionate attitude-formation weight precisely because the audience doesn't know the company yet. Predictable rituals build the bond.</td></tr>
+        <tr><td><strong>Fame without linkage builds the category, not the brand</strong></td>
+            <td>Romaniuk / Ehrenberg-Bass: distinctive assets are measured on Fame × Uniqueness; a famous character not uniquely tied to its brand does its work for competitors.</td>
+            <td>The single biggest strategic risk (§13). Linkage must be engineered (affiliate badge, bio canon, cross-surface cameos) and measured (quarterly "which company is this dog from?" survey).</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout warn">
+      <div class="ct">⚠ Honesty checkpoint</div>
+      <p>As of July 2026 there is <strong>no verified case of a B2B character account driving measured brand or pipeline lift at Duolingo/Nutter Butter scale</strong>. The consumer proof is strong and the theory transfers cleanly, but Charlie is a reasoned extrapolation, not a proven playbook — size expectations (and the measurement design in §13) accordingly.</p>
+    </div>
+  </section>
+
+  <!-- CASES -->
+  <section id="cases">
+    <div class="kicker">02 · The canon</div>
+    <h2>Case studies — what actually transfers</h2>
+    <p class="lede">Every fact below survived an adversarial fact-check pass (corrections applied where the folklore numbers were wrong). The pattern across all of them: a consistent character with a real point of view, reacting to culture the audience already lives in, optimized for shares — and institutionalized beyond one writer.</p>
+
+    <h3>The Duolingo arc — the essential 2025–26 cautionary tale</h3>
+    <p>Duolingo is both the ceiling and the warning, and the whole arc happened in the last 17 months. <strong>"Death of Duo"</strong> (Feb 11–24, 2025): Duo "killed by a Cybertruck," fans earned 50.9B XP to resurrect him — <strong>1.7B organic impressions in two weeks</strong> (confirmed in Duolingo's own SEC-filed shareholder letter), ~450 news articles, Android downloads +38% the next day, at the cost of an app-icon change and three videos. Per Duolingo's research it out-conversed any single top-10 Super Bowl ad that year. <span class="src"><a href="https://techcrunch.com/2025/02/18/duolingo-killed-its-mascot-with-a-cybertruck-and-its-going-weirdly-well/" target="_blank">[TechCrunch]</a> <a href="https://www.sec.gov/Archives/edgar/data/1562088/000156208825000098/q1fy25duolingo3-31x25share.htm" target="_blank">[SEC]</a></span></p>
+    <p>Then the reversal: the CEO's <strong>"AI-first" memo (April 28, 2025)</strong> triggered a backlash the mascot could not absorb — 400k+ TikTok followers lost, all TikTok/Instagram posts wiped May 17, top comments reading "NO AI, keep your employees." Deploying Duo in-character to deflect the criticism made it worse. Third-party analytics show median views collapsed from ~2.6M to ~96k into 2026, with the account rebuilding on engagement rather than reach. And in August 2025, Zaria Parvez — the lead voice behind the persona — left for DoorDash, having previously described medical leave and always-on anxiety from running the account. <span class="src"><a href="https://www.customerexperiencedive.com/news/duolingo-ai-first-consumer-backlash-lessons/757133/" target="_blank">[CX Dive]</a> <a href="https://www.prdaily.com/the-scoop-duolingos-legendary-social-media-manager-walks-away-as-company-priorities-shift/" target="_blank">[PR Daily]</a></span></p>
+    <div class="callout risk">
+      <div class="ct">Three lessons Charlie inherits directly</div>
+      <p><strong>1. Jeopardy stunts only pay on accumulated affection</strong> — Duo had 4+ years of equity before dying; a new character has none. Bank the "Charlie's retirement party" arc for month 6–12. <strong>2. The mascot is never the crisis shield</strong> — if GrowthX ever faces criticism (especially "AI replaces marketers"), Charlie goes silent; he never defends, explains, or spins. <strong>3. The voice must be a system, not a person</strong> — write the bible, train two writers, plan succession before launch.</p>
+    </div>
+
+    <h3>The rest of the canon</h3>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:18%">Case</th><th>What verifiably happened</th><th style="width:34%">The transferable mechanic</th></tr></thead>
+      <tbody>
+        <tr><td><strong>MoonPie</strong><br/><span class="src">2017–18</span></td>
+            <td>Deadpan, often two-word tweets; 5× follower growth in five months; a 17% sales lift and best sales month ever (Aug 2017) with zero product/distribution/media changes.</td>
+            <td><strong>The closest tonal precedent for Charlie.</strong> Withholding is the joke — restraint reads as confidence, and a character who visibly declines to react implies judgment the viewer completes. Co-authored comedy.</td></tr>
+        <tr><td><strong>Nutter Butter</strong><br/><span class="src">2023–25</span></td>
+            <td>Surreal "Nutterverse" lore from Jan 2023; after a Sept 2024 viral moment, ~400K→1.1–1.2M TikTok followers in about a month, $0 media, 3.3B+ impressions, two Cannes Golds. Product rarely shown.</td>
+            <td><strong>Lore converts viewers into investigators.</strong> Recurring characters + unresolved mysteries → fan theories → the audience co-writes the content calendar. Seed slow mysteries in Charlie's office universe; harvest the comments.</td></tr>
+        <tr><td><strong>Steak-umm</strong><br/><span class="src">2020–22</span></td>
+            <td>A frozen-meat account won national-press respect with genuinely rigorous misinformation/epistemology threads — then went culturally dormant when its one writer, Nathan Allebach, left.</td>
+            <td><strong>Smart takes from an unserious source earn senior respect</strong> — incongruity gets the first read, substance gets the follow. And the cleanest key-person-risk evidence in the genre.</td></tr>
+        <tr><td><strong>Ryanair</strong><br/><span class="src">ongoing, 2026</span></td>
+            <td>The "talking plane" persona still runs at ~2–2.8M TikTok followers, operated by a small young team with wide latitude and near-zero spend.</td>
+            <td><strong>Own your category's pain before critics do.</strong> Self-deprecation pre-empts cynicism. Charlie's version: he's unimpressed by marketing itself — including AI marketing hype, which inoculates an AI-made character.</td></tr>
+        <tr><td><strong>Wendy's</strong><br/><span class="src">2017–20</span></td>
+            <td>Roast-era growth &lt;1M→3.7M followers, built on a real product differentiator (fresh beef) plus zero-approval posting speed. Every voice-only copycat failed; roasting is now ritualized once a year.</td>
+            <td><strong>"The voice is the expression of a strategy, not the strategy."</strong> Charlie's dryness is the wrapper; the asset is a senior marketer's earned skepticism that rings true to CMOs. Also: savage aged out — and Grok-era ranking now actively punishes it (§7).</td></tr>
+        <tr><td><strong>Surreal Cereal</strong><br/><span class="src">2023–25</span></td>
+            <td>A consumer cereal that deliberately targets <em>marketers</em> as its beachhead — OOH written as industry in-jokes, designed to be photographed and re-shared on LinkedIn; single posts drove 500-comment industry debates.</td>
+            <td><strong>The closest strategic precedent:</strong> winning marketers' attention by performing marketing literacy at them. The unexplained in-joke is the share trigger — never explain the reference.</td></tr>
+        <tr><td><strong>Liquid Death</strong><br/><span class="src">2019–24</span></td>
+            <td>$1.4B valuation (Mar 2024), ~$333M 2024 revenue, ~14M followers per platform — "a content studio disguised as a beverage company." Doctrine: optimize shares over likes.</td>
+            <td><strong>The unit of success is one human sending it to another.</strong> For B2B, that's the Slack-forward: judge every clip on "would a Head of Content DM this to their team with 'us'?"</td></tr>
+        <tr><td><strong>Pop-Tarts</strong><br/><span class="src">2023–25</span></td>
+            <td>Edible-mascot sacrifice: Cannes Grand Prix for 2023; escalated to six sacrificed mascots + fan voting by Dec 2025.</td>
+            <td><strong>Jeopardy works when the mascot's fate embodies the product truth — and it's an escalation treadmill.</strong> Reserve stunts; don't run on them.</td></tr>
+        <tr><td><strong>Gong ("Bruno")</strong><br/><span class="src">B2B</span></td>
+            <td>The canonical B2B mascot — a bulldog, in revenue tech — famous via cross-surface repetition (site, chatbot, ads, events), not social captions. Only qualitative results published.</td>
+            <td><strong>B2B mascot attribution happens across owned surfaces.</strong> Also a direct collision risk: Charlie must be visually and characterfully distinct from Bruno, and the fluency survey (§13) must confirm people don't mis-attribute him.</td></tr>
+        <tr><td><strong>AdTechGod / Corporate Natalie economy</strong><br/><span class="src">2024–26</span></td>
+            <td>An anonymous ad-industry meme persona grew into a media business and got acquired (staying anonymous as CMO of the acquirer). Corporate Natalie (1.4M IG) launched a creator agency in April 2026 with Corporate Bro on the roster.</td>
+            <td><strong>Office-life character comedy for professionals is a mature, monetized category</strong> — demand is proven; the same feeds are getting competitive. Marketers use these accounts as "group therapy": the joke is their own job pain, performed back at them.</td></tr>
+        <tr><td><strong>genAI characters</strong><br/><span class="src">2025–26</span></td>
+            <td>Granny Spills: 0→~1M Instagram in ~30 days (July 2025, daily cadence; later demonetized by TikTok for "unoriginal" AI content). Veo Bigfoot vlogs; "Italian brainrot" characters became Fortnite skins in April 2026. AI "actress" Tilly Norwood drew SAG-AFTRA fury.</td>
+            <td><strong>Audiences embrace AI characters when the AI-ness is the joke, and punish AI framed as replacing humans or passed off as real.</strong> Charlie is a cartoon, openly synthetic, never simulating real footage — and no breakout genAI-video <em>brand</em> mascot exists yet. Charlie would be early, not derivative.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- CLIMATE -->
+  <section id="climate">
+    <div class="kicker">03 · The moment</div>
+    <h2>The 2026 climate: launching a genAI character into the slop backlash</h2>
+    <p class="lede">This is the single most important strategic fact of the whole analysis. The environment that makes Charlie's material rich is the same environment that will try to kill him.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="n">"Slop"</div><div class="l">2025 Word of the Year (Merriam-Webster and the American Dialect Society)</div></div>
+      <div class="stat"><div class="n">Apr 26, 2026</div><div class="l">OpenAI's Sora consumer app shut down after deepfake/slop backlash and collapsing downloads (3.3M→1.1M/mo) <span class="src"><a href="https://www.cnn.com/2026/03/24/tech/openai-sora-video-app-shutting-down" target="_blank">[CNN]</a></span></div></div>
+      <div class="stat"><div class="n">~50%</div><div class="l">of US consumers say they'd prefer brands that don't use genAI in customer-facing content (Gartner 2026); 28% rank <em>unlabeled</em> AI content as their #1 brand grievance (Sprout Q1 2026)</div></div>
+      <div class="stat"><div class="n">91%</div><div class="l">expect brands to disclose AI use (Emplifi 2026) — the punished behavior is concealment, not the AI itself</div></div>
+    </div>
+    <p>Anti-AI positioning is now itself a marketing trend — Aerie's no-AI pledge, Equinox and Almond Breeze mocking AI slop, iHeartMedia's "Guaranteed Human" pitch, and the Feb 2026 Super Bowl's AI ads received "sharply negative" ("the AI Bowl"). Meanwhile the genAI comedy that <em>does</em> win in 2026 (Seedance-era creators like The Dor Brothers, the brainrot-to-Fortnite pipeline) wins through <strong>distinctive, recurring, clearly-authored craft</strong>. <span class="src"><a href="https://www.adweek.com/creativity/in-2026-brands-are-virtue-signaling-about-ai/" target="_blank">[Adweek]</a></span></p>
+    <div class="callout good">
+      <div class="ct">Charlie's four-part anti-slop defense</div>
+      <p><strong>1. Own it:</strong> "Charlie is clay. The opinions are real." in the bio; AI-ness occasionally part of the bit. <strong>2. Craft-signal:</strong> the locked clay canon (handmade-look medium, fixed design, consistent sets), restrained 2/week cadence, no filler — low volume itself signals human curation. <strong>3. Continuity as authorship proof:</strong> Charlie is openly fictional, so the anti-slop credential is the locked character codes — same pin, same sweater, same sculpt, same sets, every post for months. A one-prompt style is slop; a continuous character is a property (full argument in the <a href="charlie-style-decision.html">style decision</a>). <strong>4. Self-aware target selection:</strong> Charlie side-eyes AI slop too. He must never be defendable as "AI company makes AI slop about marketing."</p>
+    </div>
+  </section>
+
+  <!-- MEMETICS -->
+  <section id="memetics">
+    <div class="kicker">04 · The toolkit</div>
+    <h2>The memetic toolkit — current as of July 7, 2026</h2>
+    <p class="lede">Two layers: the formats that are live right now (which will date within weeks — that's the point), and the meta-grammars that survive every cycle. Build the account on the second layer; rent the first.</p>
+
+    <h3>Confirmed-current, verified this week</h3>
+    <ul class="list">
+      <li><strong>Blank-stare animal reaction imagery is a top-tier live format.</strong> "Drooling Cat" placed top-3 in Know Your Meme's June 2026 Meme of the Month; low-res deadpan animal stills, crowd compositions, fan redraws. <em>This is Charlie's exact lane, currently open at brand scale.</em> <span class="src"><a href="https://www.yahoo.com/entertainment/articles/drooling-cat-meme-crowd-drooling-205628582.html" target="_blank">[KYM/Yahoo]</a></span></li>
+      <li><strong>Reaction-still culture is the most durable meta-format on X</strong> — a Stuart Little still was trending as a reply-sticker the week of July 7; Conan's engineered DiCaprio shrug (March 2026 Oscars) became the year's most-reported new reaction image (with a "forced meme" asterisk — engineered formats draw cynicism).</li>
+      <li><strong>Community exploitables beat finished jokes.</strong> June 2026's biggest X formats are templates and redraw trends — fixed character pose, caption space, remixable by anyone. Formats the audience can extend outlive formats the brand completes.</li>
+      <li><strong>The brainrot era is cooling into fatigue.</strong> The "Great Meme Reset" (Jan 1, 2026) failed as a campaign but documented mainstream exhaustion with AI-generated meme noise — the sentiment Charlie's restraint plays against.</li>
+    </ul>
+
+    <h3>Meta-grammars that survive cycles (build on these)</h3>
+    <div class="pills">
+      <span class="pill"><em>Reaction stills</em> — the permanent currency of X</span>
+      <span class="pill"><em>Silent QT</em> — reaction image over the news, no essay</span>
+      <span class="pill"><em>"tfw / me when / POV:"</em> — caption grammars with a mutable slot</span>
+      <span class="pill"><em>Lore-posting</em> — slow canon, recurring cast, unresolved mysteries</span>
+      <span class="pill"><em>Fake-serious corporate artifacts</em> — memos, calendar declines, performance reviews</span>
+      <span class="pill"><em>Exploitable templates</em> — clean pose + caption space, never explained</span>
+    </div>
+
+    <h3>Lifecycle discipline — how to stay fresh without dying on a dead meme</h3>
+    <p>The "6-7" meme is the benchmark case: mainstream breakout August 2025, peak October 31, <strong>brand window closed within ~3 months of breakout</strong> — weeks before the meme culturally "ended." The 2026 operating consensus is a <strong>24–72 hour trendjack window</strong> ("if it's already viral, you're already late").</p>
+    <div class="grid g2">
+      <div class="card">
+        <div class="lbl">Entry rules</div>
+        <ul class="list">
+          <li>Reactive content ships within 72h of the moment, or never</li>
+          <li>Trend calls come from dated Know Your Meme entries + native X observation — never from listicles (most "2026 meme roundups" are themselves AI slop with fabricated dates; the research found one describing October 2026 events in July)</li>
+          <li>Ride the <em>grammar</em>, not the specific meme, whenever possible — grammars don't expire mid-production</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="lbl">Exit signals (maintain a living kill-list)</div>
+        <ul class="list">
+          <li>Ironic usage appearing in comments — the earliest reliable death signal</li>
+          <li>A mainstream-press explainer exists — the window closed weeks ago</li>
+          <li>Other brands have touched it — instantly radioactive</li>
+          <li>Currently dead for brands: 6-7, brainrot-era formats, DiCaprio-shrug trendjacks. <em>Charlie visibly skipping a big meme is itself in-character content.</em></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="ct">The strategic reframe</div>
+      <p>Freshness is <strong>an operating system, not a list</strong>. Any format named in this document dates in weeks. What doesn't date: a daily monitoring habit (KYM + native X), a 24–72h ship rule, a kill-list review, and a character strong enough that <em>his</em> formats become the thing others imitate. The endgame is not Charlie using memes — it's <strong>Charlie's stills becoming marketing-Twitter's sticker set</strong>.</p>
+    </div>
+  </section>
+
+  <!-- TOPICAL -->
+  <section id="topical">
+    <div class="kicker">05 · The fuel</div>
+    <h2>The topical engine — what Charlie reacts to</h2>
+    <p class="lede">Mid-2026 marketing discourse is one meta-story: AI ate the workflow and everyone is arguing about the fallout. For a weary senior character, it's an effectively unlimited fuel supply. Every beat below was live as of July 7, 2026.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:22%">Beat</th><th>The discourse</th><th style="width:30%">The joke angle</th><th style="width:12%">Durability</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Zero-click grief</strong></td>
+            <td>Only 31.99% of Google searches now produce a click (SparkToro, June 9, 2026); AI Overviews cut CTR ~60% where present — and AI Mode is only 0.34% of searches, so worse is coming. <span class="src"><a href="https://searchengineland.com/google-zero-click-searches-2026-study-479717" target="_blank">[SEL]</a></span></td>
+            <td>The coping euphemisms ("impressions are the new clicks," "share of model") are funnier than the decline. Charlie watches a traffic dashboard flatline while someone celebrates "AI visibility."</td>
+            <td class="do">Evergreen thru 2027</td></tr>
+        <tr><td><strong>SEO→AEO→GEO rebrand wars</strong></td>
+            <td>Google officially declared AEO/GEO "still SEO," enraging the consultant economy selling them as new disciplines.</td>
+            <td>Same person, same job, third acronym this year — and renaming it didn't bring the clicks back. Visual: Charlie's desk nameplate being swapped while he doesn't move.</td>
+            <td class="do">Evergreen + spikes</td></tr>
+        <tr><td><strong>Robots policing robots</strong></td>
+            <td>Reddit announced (July 6, 2026 — yesterday) it's using its own LLMs to purge GEO astroturfing: marketers deploy AI to fake Reddit opinions so other AIs cite them; Reddit's AI deletes them. <span class="src"><a href="https://finance.yahoo.com/technology/ai/articles/reddit-cracking-down-ai-marketing-115000368.html" target="_blank">[Bloomberg]</a></span></td>
+            <td>A perfect closed loop of absurdity — the content was never for humans anyway. Prime reactive material <em>this week</em>; recurring beat every time the whack-a-mole recurs.</td>
+            <td class="dont">Hot now, 2–6 wks</td></tr>
+        <tr><td><strong>AI SDR purgatory</strong></td>
+            <td>The category is in its disillusionment trough (vendor-reported ~50–70% annual churn; directional). Everyone's inbox is proof.</td>
+            <td>"Companies paying robots to email robots that delete the email." Charlie archives 47 "Quick question, {FirstName}" emails with one paw, without looking. Never name a vendor — the genre is the target.</td>
+            <td class="do">Evergreen 2026</td></tr>
+        <tr><td><strong>CMO extinction watch</strong></td>
+            <td>31% of the Fortune 500 operates without a traditional CMO; 49% of F500 marketing leaders have lost the literal title; tenure ~4 years (Spencer Stuart).</td>
+            <td><strong>Charlie's whole premise is the joke:</strong> the only marketing leader with job security is a dog who says nothing. He dusts his "CMO Emeritus" nameplate every time another F500 deletes the title. His strongest character-defining series.</td>
+            <td class="do">Evergreen, signature</td></tr>
+        <tr><td><strong>Martech graveyard</strong></td>
+            <td>~15,500 tools, ~49% stack utilization, 62% of B2B teams planning cuts; CFO-mandated consolidation (directional figures).</td>
+            <td>Everyone has a tool nobody has logged into since onboarding. Charlie sniffs a wall of glowing SaaS logos, keeps walking. Seasonal spikes at renewal/budget season.</td>
+            <td class="do">Evergreen + Q4/Q1</td></tr>
+        <tr><td><strong>Agency contraction</strong></td>
+            <td>Forrester predicts 15% of agency jobs eliminated in 2026; Omnicom-IPG merger retired DDB, FCB, MullenLowe; 65% of agencies lost work to in-housing.</td>
+            <td>Handle with care — the absurdity of "agencies of the future" decks is fair game; <em>job losses are never the punchline</em>. Punch at agency theater, not agency people.</td>
+            <td class="dont">Careful lane</td></tr>
+        <tr><td><strong>LinkedIn lunacy, observed from X</strong></td>
+            <td>LinkedIn's 2026 anti-slop crackdown suppresses AI sameness and engagement bait — so the bait is mutating (fake-vulnerability essays persist). Mocking LinkedIn on X is marketing-Twitter's native sport.</td>
+            <td>Parody the <em>genre</em> with invented examples ("My dog died. Here's what it taught me about pipeline."). Charlie drafts a bait post, deletes it, disgusted with himself. Never screenshot a real person.</td>
+            <td class="do">Evergreen</td></tr>
+        <tr><td><strong>"Mediocrity at scale"</strong></td>
+            <td>Cannes Lions 2026's defining phrase: ~60% of marketers use AI weekly, ~10% redesigned workflows for impact (McKinsey); Galloway: "AI takes everyone to the middle."</td>
+            <td>The industry flew to the Riviera to agree AI output is mid — at authenticity panels sponsored by AI vendors. Larry-David-grade hypocrisy material; annual tentpole.</td>
+            <td class="do">Annual (June)</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout warn">
+      <div class="ct">⚠ The permanent no-go list</div>
+      <p>The Grok deepfake scandal (X's biggest 2026 drama — sexualized images incl. minors, EU probes, lawsuits): <strong>never joke material</strong>, and avoid Musk/X-platform politics entirely. Also permanently off-limits: layoffs at named companies, tragedy newsjacking (the Kenneth Cole #Cairo genre of disaster), politics, and GrowthX's own product/pricing/AI policy. Charlie punches at <em>systems and genres</em>, never at named people, customers, or competitors.</p>
+    </div>
+  </section>
+
+  <!-- X PLAYBOOK -->
+  <section id="x">
+    <div class="kicker">06 · Primary platform</div>
+    <h2>The X playbook</h2>
+    <p class="lede">X's feed is now ranked end-to-end by "Phoenix," a Grok-based transformer open-sourced January 20, 2026 (updated May 15). It predicts ~15 engagement probabilities per post — replies, dwell, video view, quote, follow — and <em>subtracts</em> predicted blocks, mutes and reports. Everything below follows from that architecture. <span class="src"><a href="https://github.com/xai-org/x-algorithm" target="_blank">[xai-org/x-algorithm]</a></span></p>
+
+    <div class="grid g3">
+      <div class="card"><div class="lbl">What the ranker rewards</div>
+        <p class="small">Conversation depth (replies that get replies; author replying to commenters), early velocity (first 30–60 min), dwell time, topical coherence — accounts consistently in one niche get better out-of-network matching. The Following feed is Grok-ranked too (since Nov 2025) — nothing is chronological by default.</p></div>
+      <div class="card"><div class="lbl">What it punishes</div>
+        <p class="small">External links (worst format), engagement bait, machine-regular timing, and — critically — content that provokes mutes/blocks/reports <em>even while it "ratios well."</em> Wendy's-2017 savagery is net-suppressed in the Grok era. Larry-David-dry is the algorithmically correct register.</p></div>
+      <div class="card"><div class="lbl">The pay-to-play floor</div>
+        <p class="small">Buffer's 18.8M-post study: free accounts median &lt;100 impressions/post; Premium ~600; Premium+ ~1,550. Premium Business ($200/mo; $1,000/mo Full) adds the <strong>affiliate badge</strong>: GrowthX's logo on every Charlie post — always-on brand linkage with zero selling. Non-negotiable line items.</p></div>
+    </div>
+
+    <h3>The operating rhythm</h3>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:24%">Motion</th><th>Spec</th><th style="width:34%">Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2 posts/week, high floor</strong></td><td>1 evergreen (Tue/Wed ~9–10am ET) + 1 reactive (whenever the moment is hot). Caption = the setup (Charlie's "voice"); silent video = the punchline. Native upload, captioned, ≤30s.</td><td>An Author Diversity Scorer in the open-sourced code attenuates repeat appearances from one account — volume has diminishing returns; per-post quality and velocity don't. Text earns X's highest median engagement (3.56%); video buys out-of-network discovery. Combine them.</td></tr>
+        <tr><td><strong>Daily reply game</strong></td><td>10–15 quality replies/day into big marketing/CMO/SEO accounts, within 5–15 min of their posts. Reaction stills or one dry line. Max 2–3 replies/account/day, never links.</td><td>This is the actual growth engine (§9 cold start): replies travel out-of-network where a small account's posts don't. Thresholds stay under the reply-deboost triggers (20+/hr, copy-paste, same-account spam → hidden as "probable spam" for 24–72h).</td></tr>
+        <tr><td><strong>Author-reply window</strong></td><td>Operator replies in-character to the first comment wave within 30–60 min; keeps the thread alive 2–3 hours. Pre-staged still bank for speed.</td><td>Reply-chains where the author engages earn compounding distribution — the single most-rewarded pattern in the 2026 ranker.</td></tr>
+        <tr><td><strong>Silent QT for reactive</strong></td><td>Quote the news post itself with a Charlie reaction (still or 3–5s loop) + ≤5-word caption. QT the take, never the person.</td><td>Quotes attach the account to already-ranked high-velocity threads, and a wordless reaction invites the audience to write the joke in Charlie's replies — feeding the reply-weighted score.</td></tr>
+        <tr><td><strong>AI disclosure hygiene</strong></td><td>"AI-generated character" in bio + pinned post; X's "Made with AI" toggle on genAI posts; never present clips as real footage.</td><td>Community Notes apply to brand posts <em>including ads</em> on X, and a note cuts a post's spread ~61% on average. Disclosed AI comedy has no noting angle; undisclosed AI is the likeliest embarrassment scenario. (X's parody-label rules don't apply to an original character — but keep the bio explicitly fictional and GrowthX-affiliated.)</td></tr>
+        <tr><td><strong>Boost winners only</strong></td><td>Small budget amplifying the 1–2 best organic clips/month to marketer-interest targeting; 15s 9:16, no hashtags. Norms: ~$2–4/follower, $6–10 CPM (directional).</td><td>2026 best practice is promoting proven organic posts, not ad-first creative. Because Charlie never sells, boosted posts read as entertainment — low skip, cheap reach.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout">
+      <div class="ct">Numbers honesty</div>
+      <p>The viral "reply = 27×, author-reply = 150× a like" weight tables circulating in 2026 guides trace to the <em>2023</em> open-source release; the Phoenix release deliberately publishes no numeric weights. The directional truths (replies ≫ likes, links kill reach, negative signals subtract) are confirmed in the current repo — treat every specific multiplier as folklore, and re-verify mechanics against the repo's 4-weekly dev notes within two weeks of launch.</p>
+    </div>
+  </section>
+
+  <!-- LINKEDIN -->
+  <section id="linkedin">
+    <div class="kicker">07 · Secondary platform</div>
+    <h2>The LinkedIn playbook — a different sport</h2>
+    <p class="lede">Three structural facts make LinkedIn Charlie a fundamentally different operation from X Charlie. Plan for them; don't fight them.</p>
+    <div class="grid g3">
+      <div class="card"><div class="lbl">Fact 1 · No personal profile</div>
+        <p class="small"><strong>Fictional-character member profiles violate LinkedIn's User Agreement</strong> ("a Member profile for anyone other than yourself (a real person)") — no written exception. Charlie exists only as a Company/Showcase Page (precedent: Mattel's Entrepreneur Barbie ran as a Showcase Page). <span class="src"><a href="https://www.linkedin.com/legal/user-agreement" target="_blank">[LinkedIn UA]</a></span></p></div>
+      <div class="card"><div class="lbl">Fact 2 · Pages are throttled</div>
+        <p class="small">Company pages are ~1–2% of feed composition (down from ~7% in 2021); organic page reach fell 60–66% from 2024 to early 2026 (high end of third-party panels); personal profiles get roughly 5–8× page engagement. Under the new "360Brew"-era LLM ranking, reach follows the <em>person's</em> topical authority — which a logo doesn't have.</p></div>
+      <div class="card"><div class="lbl">Fact 3 · Page video is declining</div>
+        <p class="small">Despite LinkedIn's public vertical-video push, company-page video views fell 36% YoY (Socialinsider, 1.3M posts). Native documents (7.0% ER) and multi-image posts (6.45%) beat page video (6.0%). One 2026 B2B brand (Vector) swapped video clips for comic-strip panels and got 6× engagement.</p></div>
+    </div>
+
+    <h3>The LinkedIn operating model</h3>
+    <ul class="list">
+      <li><strong>The page is the museum; employees are the distribution.</strong> Charlie's page hosts canon 2×/week; the plan-of-record reach comes from 10–30 GrowthX people resharing with one line of personal commentary ("Charlie reviewed my Q3 content calendar"), plus Marcel posting the best clip natively. Vary the copy and timing — identical simultaneous shares read as astroturf to both the ranker and the comments.</li>
+      <li><strong>Comment cameo as the Page — the highest-leverage move.</strong> A Page comment surfaces the logo+character to the host post's <em>entire audience</em> regardless of Charlie's follower count. 3–5 hand-written, in-character one-liners per week under the biggest marketing creators' viral posts, inside their first 60–90 minutes. (Automated commenting is explicitly targeted by the May 2026 anti-slop enforcement — manual only.)</li>
+      <li><strong>Static-first, video-second.</strong> Convert each Charlie video into a 3–4 panel still sequence (setup → stare → cutaway → deadpan caption) as a multi-image post — the format maps perfectly onto silent reaction comedy and outperforms page video. Run video only for the strongest bits: native 9:16, ≤30s, burned-in captions, joke lands in 2 seconds.</li>
+      <li><strong>Re-author, never crosspost.</strong> Verbatim X posts underperform native baseline 20–40%. X gets the raw joke same-hour; LinkedIn gets the "observed truth about marketing work" register 2–6 hours later, no external links ever.</li>
+      <li><strong>Anti-broetry is the comedic premise.</strong> Engagement-bait formats are now both algorithmically penalized and culturally ridiculed on LinkedIn — Charlie mocks the genre (invented examples only) and must never use bait mechanics himself. His fake-serious corporate artifacts (terse memos: <em>"Re: our AI transformation. No. — C."</em>) are the LinkedIn-native format.</li>
+      <li><strong>Disclose AI in the first two sentences</strong> per LinkedIn's 2026 policy; keep all captions and comments obviously human-written.</li>
+    </ul>
+  </section>
+
+  <!-- FORMATS -->
+  <section id="formats">
+    <div class="kicker">08 · The system</div>
+    <h2>Charlie's owned formats — designed for memetic fitness</h2>
+    <p class="lede">The research prescription: one fixed, cheaply imitable form with a mutable content slot; rituals that build parasocial habit; lore that turns commenters into co-authors; and a stills library engineered to become other people's vocabulary.</p>
+    <div class="grid g2">
+      <div class="card">
+        <div class="lbl">The signature format (evergreen slot)</div>
+        <p class="small"><strong>"Charlie stares silently at [marketing thing]."</strong> One sentence, one swappable slot, reproducible by any fan with a screenshot and a caption. 8–15s, locked office set, one high-arousal recognition beat. Ban punchline captions — post the reaction, let the quote-posts write the joke. Ambiguity is the growth feature.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">The reaction-still pack (the endgame)</div>
+        <p class="small">Ship a pinned <strong>"Charlie reaction pack"</strong> thread in month one: 6–10 canonical stills (side-eye, slow blink, the sigh, dead-eyed at dashboard, walking out) posted clean and unwatermarked <em>so marketers steal them</em>. Every reply-guy using a Charlie still is doing free distribution and re-encoding the memory asset. Track reuse as a leading indicator.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Ritual cadence (parasocial engineering)</div>
+        <p class="small">Predictable recurring behaviors tied to the marketer's calendar: the <strong>Monday sigh</strong>, the <strong>QBR thousand-yard stare</strong>, the <strong>end-of-quarter nap</strong>, the annual Cannes lanyard. Parasocial bonds form through repeated, predictable pseudo-encounters — consistency of behavior matters as much as consistency of look.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Lore (slow mysteries)</div>
+        <p class="small">Fixed office universe: same desk, the one mug, an unnamed intern, a mysterious "previous CMO" portrait, a drawer that never opens. Seed one slow mystery per quarter; harvest fan theories from comments as the next beat (the Nutter Butter engine). A "template drop" — one clean exploitable Charlie pose, never explained — once a month.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="ct">The voice, institutionalized</div>
+      <p>Every documented character-account collapse traces to a single-owner voice (Steak-umm, post-Parvez Duolingo). Before launch: a written <strong>character bible</strong> (POV, silence rules, ban-list, humor mechanics, crisis protocol), <strong>two trained writers</strong> with a weekly "would Charlie say this?" calibration, and the reactive-post gate from §11. Wendy's lesson holds: pre-cleared latitude inside hard guardrails beats approval chains — reactive comedy decays in hours.</p>
+    </div>
+  </section>
+
+  <!-- COLD START -->
+  <section id="coldstart">
+    <div class="kicker">09 · Escape velocity</div>
+    <h2>Cold start — the first six weeks</h2>
+    <p class="lede">The uncomfortable truth: no verified case exists of a 2-posts/week, X-first character going zero-to-relevant. The genAI precedents (Granny Spills: 0→1M Instagram in ~30 days) ran daily on consumer platforms. Week-one reach must therefore be borrowed — from replies, from the founder network, and from a modest paid floor.</p>
+    <div style="margin-top:8px">
+      <div class="phase"><div class="p">Pre-launch</div><div>Premium Business + affiliate badge live; bio/pinned canon written; HDYHAU form field + branded-search baseline running (§13); 30–50 clip/still reaction library pre-rendered; voice bible signed off; 3 owned-surface cameos shipped (site 404, chatbot avatar, deck closer) so day-one viewers can close the attribution loop.</div><div class="when">before post #1</div></div>
+      <div class="phase"><div class="p">Weeks 1–4</div><div><strong>Charlie lives in the replies.</strong> Notifications on for 50–100 large marketing accounts; a deadpan bulldog still lands under viral marketing takes within 10–15 minutes, 10–15×/day. Original posts run 2/week on schedule. Founder/employee pod: 10–30 varied, genuine engagements inside every post's first hour. Marcel QTs Charlie ("our CMO Emeritus has notes") — the origin story without a sales pitch.</div><div class="when">reply-first</div></div>
+      <div class="phase"><div class="p">Weeks 2–6</div><div>Seed marketing/SEO/growth X Communities with evergreen pieces. 3–5 mid-tier creator collabs (10–100K followers) with the ask framed as <em>"roast him back"</em> — marketing personalities reacting to a genAI bulldog judging their profession is itself content. Boost the single best organic clip.</div><div class="when">borrowed audiences</div></div>
+      <div class="phase"><div class="p">Week 6+</div><div>Review: which reply archetypes drive profile clicks; which stills get stolen; follower quality (marketers vs pet-content tourists). Shift budget toward what's compounding. LinkedIn employee-amplification rhythm locked.</div><div class="when">first read</div></div>
+    </div>
+    <div class="callout warn">
+      <div class="ct">⚠ Volume ceiling</div>
+      <p>Grok reads content directly and negative signals feed ranking — high-volume branded reply-guying that annoys CMOs can suppress the whole account (and TikTok already demonetized Granny Spills for "unoriginal AI content"; classifiers are an active platform risk). Stay well under personal-account reply-guide volumes, hold the quality bar, and vary every reply.</p>
+    </div>
+  </section>
+
+  <!-- PRODUCTION -->
+  <section id="production">
+    <div class="kicker">10 · Feasibility</div>
+    <h2>Production pipeline — feasible, with three real constraints</h2>
+    <p class="lede">All three planned models now have purpose-built character-consistency features (Veo 3.1 "Ingredients," Kling 3.0 "Elements," Seedance 2.0 reference-to-video, up to 9 reference images). Charlie is a fully fictional bulldog in a locked clay canon, so the reference set is a curated pack of approved renders — and the drift testing behind the <a href="charlie-style-decision.html">style decision</a> showed the clay design holds identity across generations better than any alternative tested.</p>
+    <div class="grid g2">
+      <div>
+        <h3 style="margin-top:0">The workflow that works</h3>
+        <ul class="list">
+          <li><strong>One immutable asset kit:</strong> 20–30 canonical approved clay renders (turnarounds, expressions, sets) + the locked character-codes block, fed identically into every generation. Never regenerate the character; only the scene.</li>
+          <li><strong>Image-first keyframes:</strong> approve a still of the exact shot, then image-to-video. Identity settles before motion; the approved stills double as the reaction-pack inventory for free.</li>
+          <li><strong>Compose for the cheap case:</strong> single character, close/medium shot, static camera, fixed office sets — the composition class that converges in 5–10 attempts (vs ~50 for complex scenes). Charlie's format already is the cheap case; codify it.</li>
+          <li><strong>Two-lane routing:</strong> reactive posts on fast tiers (≈30–90s latency; same-day easily beats the 24–72h window), evergreen on quality tiers with double the iteration budget.</li>
+          <li><strong>Human-gated automation:</strong> the documented n8n pattern — LLM writes scene prompts embedding the bible, human approves in Slack, API generates in parallel. One person sustains 2 posts/week in ~4–6 hours.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-top:0">The three constraints</h3>
+        <ul class="list">
+          <li><strong>Length:</strong> Veo's native clips are still 8s; extend/stitch is where character drift and slop artifacts appear. Kling reaches 15s native. <em>Recommendation: revise the one-pager's 15–30s spec to an 8–15s default</em> — shorter is also better for completion rates. (Seedance 2.5's launch-week 30s/4K claims are four days old and unproven — don't budget on them.)</li>
+          <li><strong>Cost shape:</strong> ~$120–500/month raw generation at 2 posts/week realistic iteration counts (≈$10–60 per finished clip) — trivial next to the real cost, which is the editor's taste and hours. Rule: a clip needing &gt;20 iterations has a composition problem; recompose, don't re-roll.</li>
+          <li><strong>Licensing:</strong> paid/GA API channels only (Vertex AI adds Google's IP indemnification; consumer/preview tiers prohibit commercial use). Seedance carries active MPA/Disney copyright heat (Feb 2026 C&amp;Ds) — usable as a capability hedge, but keep it out of the public toolchain story. Zero commercial/trending music, ever (Bang Energy lost to UMG/Sony over exactly this) — silence and ambient office sound are the brand anyway.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout good">
+      <div class="ct">Before committing publicly</div>
+      <p>Static drift-testing passed (the clay design held identity across repeated generations), but i2v motion is untested. Run a <strong>10-clip consistency pilot</strong> on the locked clay canon — SB-05's static-camera keyframes first — before the character debuts. (This slots exactly into the one-pager's existing Phase 1 internal-review step.)</p>
+    </div>
+  </section>
+
+  <!-- RISKS -->
+  <section id="risks">
+    <div class="kicker">11 · Guardrails</div>
+    <h2>Risks &amp; failure modes — ranked</h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th style="width:24%">Risk</th><th>Named precedent</th><th style="width:38%">Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1 · Read as slop</strong> <span class="src">existential</span></td>
+            <td>Sora app shutdown (Apr 2026); McDonald's NL pulled its AI ad; "AI Bowl" reception; marketers are the most slop-literate audience alive.</td>
+            <td>The four-part defense (§3): own the AI-ness, craft-signal (low cadence, locked clay canon, consistent grade), code-continuity as authorship proof, self-aware target selection. Every post must survive the "is this slop?" glance — one mass-produced-feeling clip can brand the account.</td></tr>
+        <tr><td><strong>2 · Mascot as crisis shield</strong></td>
+            <td>Duolingo deployed Duo in-character against the AI-first backlash; it amplified the anger. 400k followers gone, accounts wiped.</td>
+            <td>Pre-committed crisis protocol: if GrowthX is criticized, Charlie goes quiet. He never defends, explains, or spins. Layoffs, pricing, AI policy: permanently off-limits.</td></tr>
+        <tr><td><strong>3 · Key-person collapse</strong></td>
+            <td>Steak-umm (writer left → culturally dormant); Duolingo post-Parvez wobble.</td>
+            <td>Voice bible + two writers + succession plan, funded <em>before</em> more content volume. The voice is a system, not a person.</td></tr>
+        <tr><td><strong>4 · Fame without linkage</strong></td>
+            <td>Romaniuk's core warning — and Gong's Bruno is <em>another B2B bulldog</em> one category over; mis-attribution is a live possibility, not hypothetical.</td>
+            <td>Affiliate badge, bio canon, cross-surface cameos; visual differentiation from Bruno locked at design stage; quarterly fluency survey ("which company is this dog from?"). Full stack in §13.</td></tr>
+        <tr><td><strong>5 · Dead-meme participation</strong></td>
+            <td>The 6-7 case: brand window closed ~3 months after breakout, weeks before the meme "ended." Late participation reads as out-of-touch to exactly Charlie's audience.</td>
+            <td>72-hour rule, kill-list reviewed weekly, ironic-usage exit signal, grammars over specific memes. Skipping a meme is in-character content.</td></tr>
+        <tr><td><strong>6 · Legal/compliance</strong></td>
+            <td>Bang Energy lost to UMG/Sony (music in brand posts); Grumpy Cat's $710k judgment (character IP); FTC treats AI endorsers under the human Endorsement Guides.</td>
+            <td>No commercial music; no recreating named meme templates commercially; Charlie never endorses or makes product claims (removes most FTC surface); AI disclosure per platform; <strong>EU AI Act Art. 50 applies Aug 2, 2026</strong> — machine-readable AI marking for EU-visible content is a legal requirement in ~4 weeks, scope it now. Have counsel verify platform/FTC specifics against primary sources.</td></tr>
+        <tr><td><strong>7 · Tragedy tripwire</strong></td>
+            <td>Kenneth Cole #Cairo, Celeb Boutique #Aurora — reactive accounts are structurally the most exposed.</td>
+            <td>Reactive gate: read <em>why</em> it's trending; hard-block tragedy/politics/layoffs; second-person sign-off. Charlie's "senior and slow" persona makes arriving late unbothered — speed target is 24h, not 30 minutes.</td></tr>
+        <tr><td><strong>8 · B2B credibility erosion</strong></td>
+            <td>None found — the evidence runs the other way (emotional B2B ads outperform; 64% of decision-makers say B2B ads lack humor; creative B2B drives ~40% higher purchase consideration).</td>
+            <td>The real risk is executional: the joke channel touching product claims. Keep the character/product firewall absolute — product claims live only on corporate surfaces.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- MEASUREMENT -->
+  <section id="measurement">
+    <div class="kicker">12 · Proof</div>
+    <h2>Measurement — surviving the budget review</h2>
+    <p class="lede">B2B journeys now average 272 days and 88 touchpoints; mascot touches are top-of-journey. Revenue evidence structurally cannot appear in quarter one — so the review contract must be agreed before launch, or the program dies at its first quarterly review. Frame it honestly: Charlie is building the first-party evidence base for B2B character marketing, because no public precedent exists.</p>
+    <div class="grid g3">
+      <div class="card"><div class="lbl">Tier 1 · Leading (weekly)</div>
+        <p class="small">Per-post views; engagement rate <em>vs each platform's own median</em> (X brand median ≈0.015–0.02%; LinkedIn ≈4.7% — never in the same table unnormalized); follower growth &amp; quality; reaction-still reuse; "tagging a coworker" comments; reply→profile-click rate.</p></div>
+      <div class="card"><div class="lbl">Tier 2 · Mid (monthly)</div>
+        <p class="small">Branded-search delta via Google Search Console's native branded-queries filter (GA since Mar 2026), baselined 8 weeks pre-launch, annotated against the posting calendar — track <em>"growthx dog"/"charlie growthx"</em> as unambiguous attribution. Share of voice on Charlie-spike weeks vs baseline; earned mentions (which also feed AI-answer visibility — brand-mention frequency correlates 0.664 with LLM citation rates, ~3× backlinks); quarterly fluency survey.</p></div>
+      <div class="card"><div class="lbl">Tier 3 · Lagging (quarterly, judged from Q3)</div>
+        <p class="small">Mandatory free-text "How did you hear about us?" on demo forms (captures the 15–25% of dark-social conversions software logs as direct) — coded weekly, "bulldog/Charlie/dog videos" tagged, pipeline dollars reported. LinkedIn organic impressions tied to revenue influence via Dreamdata's Company Intelligence integration (benchmark cohorts: impressions present in 17.9% of closed deals, ~90-day lag).</p></div>
+    </div>
+    <div class="callout">
+      <div class="ct">The rule that protects the program</div>
+      <p><strong>Triangulate, never single-source.</strong> HDYHAU undercounts and biases to the last memorable touch; branded search is correlational; platform metrics measure attention, not intent. The honest story is the convergence of all three tiers — and that story must be pre-agreed with whoever owns the budget, in writing, with Tier 3 explicitly not judged before quarter three.</p>
+    </div>
+  </section>
+
+  <!-- PLAN -->
+  <section id="plan" style="border-bottom:0">
+    <div class="kicker">13 · Do this</div>
+    <h2>The 90-day integration plan</h2>
+    <p class="lede">Mapped onto the existing one-pager phases (character sheet → prototypes → soft launch on Marcel's account → franchise launch). GrowthOS launched June 9; the post-launch window the rollout doc reserved for Charlie is now.</p>
+    <div style="margin-top:8px">
+      <div class="phase"><div class="p">Days 0–14</div><div>Lock the character bible v1 (voice, ban-list, crisis protocol, lore canon — visual codes already locked per the <a href="charlie-style-decision.html">style decision</a>) + train writer #2. Curate the approved-render reference pack; run the 10-clip consistency pilot. Stand up instrumentation: HDYHAU field, GSC branded baseline, Premium Business + affiliate badge, fluency-survey vendor. Update the clip spec to 8–15s default. Legal: EU AI Act Art. 50 scoping (applies Aug 2), music/meme-IP rules, platform AI-label SOP.</div><div class="when">foundation</div></div>
+      <div class="phase"><div class="p">Days 14–30</div><div>Pre-render the 30–50 piece reaction library + the first 6 evergreen clips (single clay lane per the style decision). Build the trigger calendar (Google updates, earnings seasons, Cannes, budget season). Ship 3 owned-surface cameos. Soft-launch drip on Marcel's account begins (per existing Phase 2), with the founder-pod rhythm rehearsed on real posts.</div><div class="when">arsenal</div></div>
+      <div class="phase"><div class="p">Days 30–75</div><div>Dedicated handle goes live: reply-first month (10–15/day), 2 posts/week, comment cameos on LinkedIn, Communities seeding, 3–5 "roast him back" creator collabs, first template drop, boost the best clip. Weekly: kill-list review + meme-monitor habit + writer calibration.</div><div class="when">cold start</div></div>
+      <div class="phase"><div class="p">Days 75–90</div><div>First honest read: Tier 1/2 metrics vs platform medians, still-reuse audit, follower quality, fluency survey #1 (Bruno check included). Decide: double down on what compounds, and whether the first lore mystery seeds in Q4. No stunts until the audience anthropomorphizes him unprompted.</div><div class="when">read &amp; adjust</div></div>
+    </div>
+    <div class="callout good" style="margin-top:26px">
+      <div class="ct">The one-sentence strategy</div>
+      <p>A silent, weary, openly-synthetic bulldog with tenure — reacting to a marketing industry that has genuinely earned the reaction — distributed through replies before posts, stills before videos, and craft before volume, with linkage engineered invisibly and measured honestly. The content never sells; the badge, the bio, and the repetition do.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Charlie — viral mechanics analysis · researched &amp; web-verified July 7, 2026 via multi-agent sweep (11 research areas, adversarial fact-check on load-bearing claims; corrections applied — e.g., Nutter Butter growth figures, Duolingo Super Bowl comparison, 6-7 lifecycle framing). Companion to <code>charlie-project.html</code>. Directional figures (vendor benchmarks, reverse-engineered algorithm weights) are flagged in-line and should be re-verified before appearing in external decks.
+  </div>
+</footer>
+
+</body>
+</html>
