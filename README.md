@@ -1,4 +1,4 @@
-# Charlie — The OS Dog
+# Charlie — CMO Emeritus
 
 Research & pre-production record for the GrowthX character program.
 Static site — open `index.html` or visit the GitHub Pages deployment.
